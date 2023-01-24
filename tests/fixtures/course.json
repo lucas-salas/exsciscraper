@@ -1,0 +1,18 @@
+{
+  "get_by_id": {
+		"method": "GET",
+		"endpoint": "courses/1",
+		"data": {
+			"id": 1,
+			"course_code": "HLAC-1230-401-Sp22",
+			"name": "HLAC-1230-401-Sp22",
+			"workflow_state": "available",
+			"account_id": 1,
+			"root_account_id": 1,
+			"enrollment_term_id": 1,
+			"grading_standard_id": 1,
+			"total_students": 1
+		},
+		"status_code": 200
+	}
+}

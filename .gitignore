@@ -1,0 +1,11 @@
+**/.env
+**/.log
+resources/**
+.idea
+**/.ipynb_checkpoints/**
+**/.pytest_cache
+**/.DS_Store
+**/__pycache__
+/resources/
+
+

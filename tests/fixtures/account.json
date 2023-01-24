@@ -1,0 +1,80 @@
+{
+  "get_by_id": {
+    "method": "GET",
+    "endpoint": "accounts/1",
+    "data": {
+      "id": 1,
+      "name": "Canvas Account",
+      "parent_account_id": null,
+      "root_account_id": null,
+      "default_storage_quota_mb": 500,
+      "default_user_storage_quota_mb": 50,
+      "default_group_storage_quota_mb": 50,
+      "default_time_zone": "America/New_York"
+    },
+    "status_code": 200
+  },
+  "get_courses": {
+    "method": "GET",
+    "endpoint": "accounts/1/courses",
+    "data": [
+      {
+        "id": 1,
+        "course_code": "HLAC-1230-401-Sp22",
+        "name": "HLAC-1230-401-Sp22",
+        "workflow_state": "available",
+        "account_id": 1,
+        "root_account_id": 1,
+        "enrollment_term_id": 1,
+        "grading_standard_id": 1,
+        "total_students": 1
+      },
+      {
+        "id": 2,
+        "course_code": "EXSC-2500-401-Sp22",
+        "name": "EXSC-2500-401-Sp22",
+        "workflow_state": "available",
+        "account_id": 1,
+        "root_account_id": 1,
+        "enrollment_term_id": 1,
+        "grading_standard_id": 1,
+        "total_students": 1
+      }
+    ],
+    "headers": {
+      "Link": "<https://example.com/api/v1/accounts/1/courses?page=2&per_page=2>; rel=\"next\""
+    },
+    "status_code": 200
+  },
+  "get_courses_page_2": {
+    "method": "GET",
+    "endpoint": "accounts/1/courses?page=2&per_page=2",
+    "data": [
+      {
+        "id": 3,
+        "course_code": "HLTH-1050-351-Sp22",
+        "name": "HLTH-1050-351-Sp22",
+        "workflow_state": "available",
+        "account_id": 1,
+        "root_account_id": 1,
+        "enrollment_term_id": 1,
+        "grading_standard_id": 1,
+        "total_students": 1
+
+      },
+      {
+        "id": 4,
+        "course_code": "NUTR-1020-501-502-Sp22",
+        "name": "NUTR-1020-501-502-Sp22",
+        "workflow_state": "available",
+        "account_id": 1,
+        "root_account_id": 1,
+        "enrollment_term_id": 1,
+        "grading_standard_id": 1,
+        "total_students": 1
+
+      }
+    ],
+    "status_code": 200
+  }
+}

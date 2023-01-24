@@ -1,0 +1,156 @@
+import canvasapi.course
+import canvasapi.quiz
+import pytest
+
+from util import sample
+from src.scraper import constants
+from src.scraper import quiz_scraper
+from src.helpers import settings
+
+
+@pytest.fixture
+def samples(request):
+    return int(request.config.getoption("--samples"))
+
+
+# TODO tests using mock objects instead of actual api calls
+@pytest.fixture
+def canvas():
+    return quiz_scraper.CanvasWrapper()
+
+
+@pytest.fixture(params=constants.valid_terms)
+def courses(canvas, request):
+    return canvas.get_account_courses(request.param)
+
+
+@pytest.fixture
+def course_samples(courses, samples):
+    return sample(courses, samples)
+
+
+@pytest.fixture(params=settings.search_str)
+def search_terms(request):
+    return request.param
+
+
+# Fixture to tests all course designations
+@pytest.fixture(params=['HLAC', 'HLTH'])
+def course_designation(request):
+    return request.param
+
+
+def test_get_account_courses(courses, samples):
+    course_list = courses
+    assert isinstance(course_list, list) == True
+    assert (len(course_list) > 0) == True
+    assert isinstance(course_list[0], canvasapi.course.Course) == True
+    # Make sure the courses aren't empty
+    for course in sample(course_list, samples):
+        assert (course.total_students > 0) == True
+        assert hasattr(course, "enrollment_term_id")
+
+
+class TestQuizScraper:
+
+    def test_filter_courses(self, courses, course_designation, samples):
+        course_list = courses
+        filtered_list = quiz_scraper.SearchHandler.filter_courses(course_list, course_designation)
+        assert isinstance(filtered_list, list) == True
+        assert len(filtered_list) > 0
+        assert isinstance(filtered_list[0], canvasapi.course.Course) == True
+        # Make sure the filtered courses all have correct designation
+        for course in sample(filtered_list, samples):
+            assert course.course_code[:4] == course_designation
+
+    def test_search_quizzes(self, course_samples, search_terms, samples):
+        search_results = quiz_scraper.SearchHandler.search_quizzes(course_samples, search_terms)
+        assert isinstance(search_results, list) == True
+        assert len(search_results) > 0
+        assert isinstance(search_results[0], canvasapi.quiz.Quiz) == True
+        for quiz in sample(search_results, samples):
+            assert quiz.title == search_terms
+            # 4,5,6 should be only possible number of questions for these quizzes
+            assert quiz.question_count in [4, 5, 6]
+            assert hasattr(quiz, "enrollment_term_id")
+
+
+@pytest.fixture
+def quiz_list(course_samples, search_terms):
+    filtered_courses = quiz_scraper.SearchHandler.filter_courses(course_samples, "HLAC")
+    return quiz_scraper.SearchHandler.search_quizzes(filtered_courses, search_terms)
+
+
+@pytest.fixture
+def rphandler(quiz_list):
+    return quiz_scraper.ReportHandler(quiz_list)
+
+
+class TestReportHandler:
+
+    # def test_report_handler(self):
+    #     rphandler = quiz_scraper.ReportHandler
+    #     assert isinstance(rphandler, quiz_scraper.ReportHandler) == True
+
+    def test__generate_reports(self, rphandler, samples):
+        quiz_list_with_reports = rphandler._generate_reports()
+        assert isinstance(quiz_list_with_reports, list) == True
+        assert len(quiz_list_with_reports) == len(rphandler.quiz_list)
+        assert isinstance(quiz_list_with_reports[0], canvasapi.quiz.Quiz) == True
+        for quiz in sample(quiz_list_with_reports, samples):
+            assert hasattr(quiz, "report") == True
+            assert type(quiz.report.progress_url) == str
+            assert hasattr(quiz.report, "progress_url") == True
+            assert quiz.updated == False
+            assert quiz.report.report_type == "student_analysis"
+
+    @pytest.fixture
+    def quiz_list_with_reports(self, rphandler, quiz_list):
+        """ Fixture for quizzes that have reports as attributes """
+        return rphandler._generate_reports()
+
+    def test__get_progress_id(self, rphandler, quiz_list_with_reports, samples):
+        quiz_list_progid = rphandler._get_progress_id()
+        assert isinstance(quiz_list_progid, list) == True
+        assert len(quiz_list_progid) == len(quiz_list_with_reports)
+        for quiz in sample(quiz_list_progid, samples):
+            assert hasattr(quiz.report, "progress_id")
+            assert isinstance(quiz.report.progress_id, int) == True
+            assert (str(quiz.report.progress_id) in quiz.report.progress_url)
+
+    def test__check_report_progress(self):
+        # TODO test timout
+        pass
+
+    def test_fetch_updated_reports(self, rphandler, canvas, samples):
+        updated_quiz_list = rphandler.fetch_updated_reports(canvas.canvas)
+        assert isinstance(updated_quiz_list, list) == True
+        assert len(updated_quiz_list) == len(rphandler.quiz_list)
+        for quiz in sample(updated_quiz_list, samples):
+            assert isinstance(quiz, canvasapi.quiz.Quiz) == True
+            assert hasattr(quiz, "updated") == True
+            assert quiz.updated == True
+            assert hasattr(quiz.report, "file") == True
+            assert ("url" in quiz.report.file) == True
+
+
+@pytest.fixture
+def updated_quiz_list(rphandler, canvas):
+    return rphandler.fetch_updated_reports(canvas.canvas)
+
+
+class TestQuizWrapper:
+
+    def test_build_quiz_wrappers(self, updated_quiz_list):
+        wrapped_quizzes = quiz_scraper.build_quiz_wrappers(updated_quiz_list)
+        assert isinstance(wrapped_quizzes, list) == True
+        assert len(wrapped_quizzes) > 0
+        assert isinstance(wrapped_quizzes[0], quiz_scraper.QuizWrapper) == True
+        for wrapped_quiz, quiz in zip(wrapped_quizzes, updated_quiz_list):
+            assert wrapped_quiz.title == quiz.title
+            assert wrapped_quiz.id == quiz.id
+            assert wrapped_quiz.course_id == quiz.course_id
+            assert wrapped_quiz.question_count == quiz.question_count
+            assert wrapped_quiz.report_id == quiz.report.id
+            assert wrapped_quiz.report_download_url == quiz.report.file["url"]
+
