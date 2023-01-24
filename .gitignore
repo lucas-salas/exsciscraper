@@ -7,5 +7,6 @@ resources/**
 **/.DS_Store
 **/__pycache__
 /resources/
+**/.config/
 
 
