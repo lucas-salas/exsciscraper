@@ -7,5 +7,6 @@ BASE_URL_AS_INVALID = "example.com"
 BASE_URL_WITH_EXTRA_SPACES = " https://example.com "
 API_KEY = "123"
 ACCOUNT_ID=1
+search_str = ["Resilience Questionnaire (Pre-Assessment)","Resilience Questionnaire (Post-Assessment)"]
 
 INVALID_ID = 9001

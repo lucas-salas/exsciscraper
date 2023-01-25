@@ -14,5 +14,42 @@
 			"total_students": 1
 		},
 		"status_code": 200
+	},
+	"list_quizzes": {
+		"method": "GET",
+		"endpoint": "courses/1/quizzes",
+		"data": [
+			{
+				"id": 1,
+				"title": "Resilience Questionnaire (Pre-Assessment)",
+				"question_count": 4
+			},
+			{
+				"id": 2,
+				"title": "Resilience Questionnaire (Post-Assessment)",
+				"question_count": 4
+			}
+		],
+		"status_code": 200,
+		"headers": {
+			"Link": "<https://example.com/api/v1/courses/1/list_quizzes?page=2&per_page=2>; rel=\"next\""
+		}
+	},
+	"list_quizzes2": {
+		"method": "GET",
+		"endpoint": "courses/1/list_quizzes?page=2&per_page=2",
+		"data": [
+			{
+				"id": 3,
+				"title": "Resilience Questionnaire (Pre-Assessment)",
+				"question_count": 5
+			},
+			{
+				"id": 4,
+				"title": "Resilience Questionnaire (Post-Assessment)",
+				"question_count": 5
+			}
+		],
+		"status_code": 200
 	}
 }

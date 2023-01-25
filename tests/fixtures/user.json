@@ -7,5 +7,13 @@
 			"name": "John Doe"
 		},
 		"status_code": 200
+	},
+	"get_by_id_self": {
+		"method": "GET",
+		"endpoint": "users/self",
+		"data": {
+			"id": 1,
+			"name": "John Doe"
+		}
 	}
 }

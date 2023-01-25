@@ -1,0 +1,13 @@
+{
+  "create_report": {
+		"method": "POST",
+		"endpoint": "courses/1/quizzes/1/reports",
+		"data": {
+			"id": 1,
+			"quiz_id": 1,
+			"report_type": "student_analysis",
+			"includes_all_paramaters": true
+		},
+		"status_code": 200
+	}
+}
