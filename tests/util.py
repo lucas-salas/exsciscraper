@@ -20,10 +20,12 @@ def sample(iterable, samples):
 BASE_URL_WITH_VERSION = "https://example.com/api/v1/"
 
 
-def register_uris(requirements, requests_mocker, base_url=None):
+def register_uris(requirements, requests_mocker, base_url=None, json_payload=False, data_dict=None):
     """
     Given a list of required fixtures and an requests_mocker object,
     register each fixture as a uri with the mocker.
+    :param data_dict: dict
+    :param json_payload: bool
     :param base_url: str
     :param requirements: dict
     :param requests_mocker: requests_mock.mocker.Mocker
@@ -31,11 +33,15 @@ def register_uris(requirements, requests_mocker, base_url=None):
     if base_url is None:
         base_url = BASE_URL_WITH_VERSION
     for fixture, objects in requirements.items():
-        try:
-            with open("fixtures/{}.json".format(fixture)) as file:
-                data = json.loads(file.read())
-        except (IOError, ValueError):
-            raise ValueError("Fixture {}.json contains invalid JSON.".format(fixture))
+        # If you want to manually provide the fixture
+        if json_payload:
+            data = data_dict
+        else:
+            try:
+                with open("fixtures/{}.json".format(fixture)) as file:
+                    data = json.loads(file.read())
+            except (IOError, ValueError):
+                raise ValueError("Fixture {}.json contains invalid JSON.".format(fixture))
 
         if not isinstance(objects, list):
             raise TypeError("{} is not a list.".format(objects))
