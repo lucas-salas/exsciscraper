@@ -4,7 +4,6 @@ import canvasapi.quiz
 import pytest
 import requests_mock
 import settings
-# from src.helpers import settings
 from src.scraper import quiz_scraper
 from util import register_uris
 from util import sample
@@ -44,28 +43,6 @@ def user(raw_canvas, mock):
     return raw_canvas.get_current_user()
 
 
-# @pytest.fixture
-# def mock_init(raw_canvas, account, user):
-#     _BASE_URL: str = ''
-#     _API_KEY: str = ''
-#     _ACCOUNT_ID: int = 1
-#     canvas = raw_canvas
-#     account = account
-#     user = user
-#
-# def test_canvas_wrapper(monkeypatch, mock_init):
-#     monkeypatch.setattr(quiz_scraper.CanvasWrapper, '__init__', mock_init)
-#     wrapper = quiz_scraper.CanvasWrapper()
-#     assert wrapper.canvas == raw_canvas
-#     assert wrapper.account == account
-#     assert wrapper.user == user
-#
-# @pytest.fixture(scope="module")
-# def canvas(monkeypatch, mock_init):
-#     monkeypatch.setattr(quiz_scraper.CanvasWrapper, '__init__', mock_init)
-#     return quiz_scraper.CanvasWrapper()
-
-
 @pytest.fixture
 def canvas(monkeypatch, raw_canvas, account, user):
     monkeypatch.setenv("BASE_URL", settings.BASE_URL)
@@ -100,20 +77,20 @@ class TestQuizScraper:
         requires = {"account": ["get_courses", "get_courses_page_2"]}
         register_uris(requires, mock)
         course_list = canvas.get_account_courses(1)
-        assert isinstance(course_list, list) == True
-        assert (len(course_list) > 0) == True
-        assert isinstance(course_list[0], canvasapi.course.Course) == True
+        assert isinstance(course_list, list)
+        assert (len(course_list) > 0)
+        assert isinstance(course_list[0], canvasapi.course.Course)
         # Make sure the courses aren't empty
         for course in course_list:
             assert hasattr(course, "total_students")
-            assert (course.total_students > 0) == True
+            assert (course.total_students > 0)
             assert hasattr(course, "enrollment_term_id")
 
     def test_filter_courses(self, courses, course_designation):
         filtered_list = quiz_scraper.SearchHandler.filter_courses(courses, course_designation)
-        assert isinstance(filtered_list, list) is True
+        assert isinstance(filtered_list, list)
         assert len(filtered_list) > 0
-        assert isinstance(filtered_list[0], canvasapi.course.Course) is True
+        assert isinstance(filtered_list[0], canvasapi.course.Course)
         # Make sure the filtered courses all have correct designation
         for course in filtered_list:
             assert course.course_code[:4] == course_designation
@@ -126,11 +103,10 @@ class TestQuizScraper:
         requires = {"course": ["list_quizzes", "list_quizzes2"]}
         register_uris(requires, mock)
         search_results = quiz_scraper.SearchHandler.search_quizzes(filtered_courses, search_terms)
-        assert isinstance(search_results, list) == True
+        assert isinstance(search_results, list)
         assert len(search_results) > 0
-        assert isinstance(search_results[0], canvasapi.quiz.Quiz) == True
+        assert isinstance(search_results[0], canvasapi.quiz.Quiz)
         for quiz in search_results:
-            # assert quiz.title == search_terms
             # 4,5,6 should be only possible number of questions for these quizzes
             assert quiz.question_count in [4, 5, 6]
             assert hasattr(quiz, "enrollment_term_id")
@@ -143,7 +119,6 @@ def filtered_courses(courses, course_designation):
 
 @pytest.fixture
 def quiz_list(mock, filtered_courses, search_terms):
-    # filtered_courses = quiz_scraper.SearchHandler.filter_courses(courses, "HLAC")
     requires = {"course": ["list_quizzes", "list_quizzes2"]}
     register_uris(requires, mock)
     return quiz_scraper.SearchHandler.search_quizzes(filtered_courses, search_terms)
@@ -155,9 +130,9 @@ def rphandler(quiz_list):
 
 
 class TestReportHandler:
-    @pytest.mark.dependency(name="generate_reports")
     def test__generate_reports(self, mock, rphandler, quiz_list):
         # Dynamically generate endpoints
+        # TODO do somethings about this mess
         for i in range(1, len(quiz_list) + 1):
             method_name = f"create_report{i}"
             data = {
@@ -180,10 +155,10 @@ class TestReportHandler:
         quiz_list_with_reports = rphandler._generate_reports()
         assert isinstance(quiz_list_with_reports, list) is True
         assert len(quiz_list_with_reports) == len(rphandler.quiz_list)
-        assert isinstance(quiz_list_with_reports[0], canvasapi.quiz.Quiz) is True
+        assert isinstance(quiz_list_with_reports[0], canvasapi.quiz.Quiz)
         for quiz in quiz_list_with_reports:
-            assert hasattr(quiz, "report") is True
-            assert hasattr(quiz.report, "progress_url") is True
+            assert hasattr(quiz, "report")
+            assert hasattr(quiz.report, "progress_url")
             # assert type(quiz.report.progress_url) is str
             assert quiz.updated is False
 
@@ -211,7 +186,7 @@ class TestReportHandler:
             register_uris(requires, mock, json_payload=True, data_dict=data)
         return rphandler._generate_reports()
 
-    # @pytest.mark.dependency(depends=["generate_reports"], scope='class')
+    # TODO do I really need to pass quiz_list_w_reports?
     def test__get_progress_id(self, rphandler, quiz_list_w_reports):
         quiz_list_progid = rphandler._get_progress_id()
         assert isinstance(quiz_list_progid, list) is True
@@ -225,16 +200,16 @@ class TestReportHandler:
         # TODO test timout
         pass
 
-    def test_fetch_updated_reports(self, rphandler, canvas, samples):
+    def test_fetch_updated_reports(self, rphandler, canvas):
         updated_quiz_list = rphandler.fetch_updated_reports(canvas.canvas)
-        assert isinstance(updated_quiz_list, list) == True
+        assert isinstance(updated_quiz_list, list)
         assert len(updated_quiz_list) == len(rphandler.quiz_list)
-        for quiz in sample(updated_quiz_list, samples):
-            assert isinstance(quiz, canvasapi.quiz.Quiz) == True
-            assert hasattr(quiz, "updated") == True
-            assert quiz.updated == True
-            assert hasattr(quiz.report, "file") == True
-            assert ("url" in quiz.report.file) == True
+        for quiz in updated_quiz_list:
+            assert isinstance(quiz, canvasapi.quiz.Quiz)
+            assert hasattr(quiz, "updated")
+            assert quiz.updated is True
+            assert hasattr(quiz.report, "file")
+            assert ("url" in quiz.report.file)
 
 
 @pytest.fixture
