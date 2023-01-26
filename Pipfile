@@ -24,6 +24,7 @@ jupyter = "*"
 jupyterlab = "*"
 ipython = "*"
 requests-mock = "*"
+pytest-dependency = "*"
 
 [dev-packages]
 

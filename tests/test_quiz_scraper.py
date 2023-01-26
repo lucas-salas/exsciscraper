@@ -155,7 +155,7 @@ def rphandler(quiz_list):
 
 
 class TestReportHandler:
-
+    @pytest.mark.dependency(name="generate_reports")
     def test__generate_reports(self, mock, rphandler, quiz_list):
         # Dynamically generate endpoints
         for i in range(1, len(quiz_list) + 1):
@@ -187,38 +187,54 @@ class TestReportHandler:
             # assert type(quiz.report.progress_url) is str
             assert quiz.updated is False
 
+    @pytest.fixture
+    def quiz_list_w_reports(self, mock, rphandler, quiz_list):
+        # Dynamically generate endpoints
+        for i in range(1, len(quiz_list) + 1):
+            method_name = f"create_report{i}"
+            data = {
+                method_name: {
+                    "method": "POST",
+                    "endpoint": f"courses/1/quizzes/{i}/reports",
+                    "data": {
+                        "id": i,
+                        "quiz_id": i,
+                        "report_type": "student_analysis",
+                        "includes_all_paramaters": True,
+                        "progress_url": f"https://canvas.example.edu/api/v1/progress/{i}"
+                    },
+                    "status_code": 200
+                }
+            }
+            objects = [method_name]
+            requires = {"quiz": objects}
+            register_uris(requires, mock, json_payload=True, data_dict=data)
+        return rphandler._generate_reports()
 
-@pytest.fixture
-def quiz_list_with_reports(self, rphandler, quiz_list):
-    """ Fixture for quizzes that have reports as attributes """
-    return rphandler._generate_reports()
+    # @pytest.mark.dependency(depends=["generate_reports"], scope='class')
+    def test__get_progress_id(self, rphandler, quiz_list_w_reports):
+        quiz_list_progid = rphandler._get_progress_id()
+        assert isinstance(quiz_list_progid, list) is True
+        assert len(quiz_list_progid) == len(quiz_list_w_reports)
+        for quiz in quiz_list_progid:
+            assert hasattr(quiz.report, "progress_id")
+            assert isinstance(quiz.report.progress_id, int) is True
+            assert (str(quiz.report.progress_id) in quiz.report.progress_url)
 
+    def test__check_report_progress(self):
+        # TODO test timout
+        pass
 
-def test__get_progress_id(self, rphandler, quiz_list_with_reports, samples):
-    quiz_list_progid = rphandler._get_progress_id()
-    assert isinstance(quiz_list_progid, list) == True
-    assert len(quiz_list_progid) == len(quiz_list_with_reports)
-    for quiz in sample(quiz_list_progid, samples):
-        assert hasattr(quiz.report, "progress_id")
-        assert isinstance(quiz.report.progress_id, int) == True
-        assert (str(quiz.report.progress_id) in quiz.report.progress_url)
-
-
-def test__check_report_progress(self):
-    # TODO test timout
-    pass
-
-
-def test_fetch_updated_reports(self, rphandler, canvas, samples):
-    updated_quiz_list = rphandler.fetch_updated_reports(canvas.canvas)
-    assert isinstance(updated_quiz_list, list) == True
-    assert len(updated_quiz_list) == len(rphandler.quiz_list)
-    for quiz in sample(updated_quiz_list, samples):
-        assert isinstance(quiz, canvasapi.quiz.Quiz) == True
-        assert hasattr(quiz, "updated") == True
-        assert quiz.updated == True
-        assert hasattr(quiz.report, "file") == True
-        assert ("url" in quiz.report.file) == True
+    def test_fetch_updated_reports(self, rphandler, canvas, samples):
+        updated_quiz_list = rphandler.fetch_updated_reports(canvas.canvas)
+        assert isinstance(updated_quiz_list, list) == True
+        assert len(updated_quiz_list) == len(rphandler.quiz_list)
+        for quiz in sample(updated_quiz_list, samples):
+            assert isinstance(quiz, canvasapi.quiz.Quiz) == True
+            assert hasattr(quiz, "updated") == True
+            assert quiz.updated == True
+            assert hasattr(quiz.report, "file") == True
+            assert ("url" in quiz.report.file) == True
 
 
 @pytest.fixture
