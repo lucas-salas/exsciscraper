@@ -129,7 +129,7 @@ class ReportHandler:
             return self.quiz_list
         else:
             print("Unable to fetch updated reports.")
-            return 1
+            raise TimeoutError("Timed out.")
 
 
 def build_quiz_wrappers(updated_quiz_list):

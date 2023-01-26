@@ -201,6 +201,7 @@ class TestReportHandler:
         pass
 
     def test_fetch_updated_reports(self, rphandler, canvas):
+
         updated_quiz_list = rphandler.fetch_updated_reports(canvas.canvas)
         assert isinstance(updated_quiz_list, list)
         assert len(updated_quiz_list) == len(rphandler.quiz_list)
