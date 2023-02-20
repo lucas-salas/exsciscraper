@@ -46,4 +46,9 @@ uwrs_no_demographics = uwrs_handler.create_summary_df(pre_uwrs, post_uwrs)
 # Load in student demographic info
 demographics_info = demog_handler.load_demographics()
 
+# Add canvas style name column
+demographics_info["Full Name"] = demog_handler.concat_names(demographics_info)
+# Add canvas style section column
+demographics_info["section"] = demog_handler.create_canvas_style_section(demographics_info)
+
 print()
