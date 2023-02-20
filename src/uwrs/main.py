@@ -1,5 +1,5 @@
 import pickle
-
+from scraper import constants
 from scraper import pre_post_handler
 from scraper import quiz_scraper
 from scraper import uwrs_handler
@@ -44,11 +44,14 @@ for df in [pre_uwrs, post_uwrs]:
 uwrs_no_demographics = uwrs_handler.create_summary_df(pre_uwrs, post_uwrs)
 
 # Load in student demographic info
-demographics_info = demog_handler.load_demographics()
+demographics_info = demog_handler.load_demographics(pkl=True)
 
 # Add canvas style name column
-demographics_info["Full Name"] = demog_handler.concat_names(demographics_info)
+demographics_info["name"] = demog_handler.concat_names(demographics_info)
 # Add canvas style section column
 demographics_info["section"] = demog_handler.create_canvas_style_section(demographics_info)
+# Add banner style term code column
+uwrs_no_demographics.insert(loc=2, column="term_code", value=constants.term_codes[enrollment_term])
+# demographics_info['term_code'] = constants.term_codes[enrollment_term]
 
 print()
