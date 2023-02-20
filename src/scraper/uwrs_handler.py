@@ -111,7 +111,9 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
     :param pre_uwrs:
     :param post_uwrs:
     """
-    summary_df = pre_uwrs[['name', 'section']].copy()
+    # Change names to lowercase for later comparisons
+    summary_df = pre_uwrs["name"].str.lower()
+    summary_df["section"] = pre_uwrs["section"]
     # Unnecessary namedtuple to perform set of operations on both dataframes
     UwDf = namedtuple('UwDf', ['pp', 'df'])
     df_tuple_list = [UwDf('pre', pre_uwrs), UwDf('post', post_uwrs)]
@@ -139,26 +141,3 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
 def save_no_demographics(summary_df, term_id):
     filename = f"[PRELIMINARY] {constants.valid_terms[term_id]} UWRS No Demographics.csv"
     summary_df.to_csv(f"../../reports/uwrs_out/{filename}")
-
-
-def load_demographics():
-    # TODO create an SQL database for student demographic info
-    return pd.read_excel('../../resources/demographics.xlsx')
-
-
-def demographics_count_not_found(demographics_info, uwrs_df):
-    uwrs_names = uwrs_df['name'].str.lower().tolist()
-    tmp_demog_names = demographics_info['First Name'] + ' ' + demographics_info['Last Name']
-    demog_names = tmp_demog_names.str.lower().tolist()
-
-    not_found_count = 0
-    found_count = 0
-
-    for name in uwrs_names:
-        if name not in demog_names:
-            not_found_count += 1
-        else:
-            found_count += 1
-
-    print(f"Found: {found_count}")
-    print(f"Not Found: {not_found_count}")

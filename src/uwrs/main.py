@@ -3,6 +3,7 @@ import pickle
 from scraper import pre_post_handler
 from scraper import quiz_scraper
 from scraper import uwrs_handler
+import demog_handler
 
 enrollment_term: int = 613
 
@@ -43,6 +44,6 @@ for df in [pre_uwrs, post_uwrs]:
 uwrs_no_demographics = uwrs_handler.create_summary_df(pre_uwrs, post_uwrs)
 
 # Load in student demographic info
-demographics_info = uwrs_handler.load_demographics()
+demographics_info = demog_handler.load_demographics()
 
 print()
