@@ -1,8 +1,9 @@
 import pickle
 
+from scraper import pre_post_handler
 from scraper import quiz_scraper
 from scraper import uwrs_handler
-from scraper import pre_post_handler
+
 enrollment_term: int = 613
 
 canwrap = quiz_scraper.CanvasWrapper()
@@ -37,5 +38,11 @@ for df in [pre_uwrs, post_uwrs]:
     df['summary_score'] = qhandler.summarize_scores(df)
     df['t_score'] = qhandler.normalize_sums(df)
 
+# Create a summary dataframe
+# uwrs_no_demographics = uwrs_handler.create_summary_df(pre_uwrs, post_uwrs, to_csv=True, term_id=enrollment_term)
+uwrs_no_demographics = uwrs_handler.create_summary_df(pre_uwrs, post_uwrs)
+
+# Load in student demographic info
+demographics_info = uwrs_handler.load_demographics()
 
 print()

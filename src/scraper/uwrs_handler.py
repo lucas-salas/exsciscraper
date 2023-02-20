@@ -1,3 +1,4 @@
+from collections import namedtuple
 from dataclasses import dataclass
 
 import pandas as pd
@@ -68,7 +69,6 @@ class UwrsHandler:
                            )
         return df_list
 
-
     def translate_scores(self, uwrs_df):
         """
         Convert the text base scores to numerical scores in the questions columns
@@ -77,7 +77,7 @@ class UwrsHandler:
         """
         questions = []
         scores = []
-        for i in range(1,5):
+        for i in range(1, 5):
             score = f"score{i}"
             scores.append(score)
             question = f"question{i}"
@@ -88,13 +88,12 @@ class UwrsHandler:
 
     @staticmethod
     def summarize_scores(uwrs_df):
-            """
+        """
             Return column for summary score
             :param uwrs_df:
             :return:
             """
-            scores = ['score1', 'score2', 'score3', 'score4']
-            return uwrs_df[scores].sum(axis=1)
+        return uwrs_df[constants.scores].sum(axis=1)
 
     @staticmethod
     def normalize_sums(uwrs_df):
@@ -105,4 +104,43 @@ class UwrsHandler:
         return uwrs_df['summary_score'].map(constants.t_score_dict)
 
 
+def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
+    """
+    Create a dataframe with only information needed to summarize uwrs for a term
+    :param to_csv:
+    :param pre_uwrs:
+    :param post_uwrs:
+    """
+    summary_df = pre_uwrs[['name', 'section']].copy()
+    # Unnecessary namedtuple to perform set of operations on both dataframes
+    UwDf = namedtuple('UwDf', ['pp', 'df'])
+    df_tuple_list = [UwDf('pre', pre_uwrs), UwDf('post', post_uwrs)]
+    for dft in df_tuple_list:
+        # Add score columns
+        for i in range(1, len(constants.scores) + 1):
+            summary_df[f"{dft.pp}_score{i}"] = dft.df[f"score{i}"]
+        summary_df[f"{dft.pp}_summary_score"] = dft.df["summary_score"]
+        summary_df[f"{dft.pp}_t_score"] = dft.df["t_score"]
+    # Add score change columns
+    for i in range(1, len(constants.scores) + 1):
+        summary_df[f"score{i}_change"] = post_uwrs[f"score{i}"] - pre_uwrs[f"score{i}"]
+    summary_df["t_score_change"] = post_uwrs["t_score"] - pre_uwrs["t_score"]
+    # If save is true
+    if to_csv:
+        try:
+            term_id = kwargs['term_id']
+            save_no_demographics(summary_df, term_id)
+        except KeyError:
+            print("if to_csv=True, you must specify term_id")
 
+    return summary_df
+
+
+def save_no_demographics(summary_df, term_id):
+    filename = f"[PRELIMINARY] {constants.valid_terms[term_id]} UWRS No Demographics.csv"
+    summary_df.to_csv(f"../../reports/uwrs_out/{filename}")
+
+
+def load_demographics():
+    # TODO create an SQL database for student demographic info
+    return pd.read_excel('../../resources/demographics.xlsx')

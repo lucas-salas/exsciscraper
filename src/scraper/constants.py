@@ -1,6 +1,7 @@
 # valid_terms = {"sp22": 613, "su22": 614}
 
-valid_terms = [613, 614]
+valid_terms = {343: "Spring 2020", 578: "Summer 2020", 579: "Fall 2020", 580: "Spring 2021", 611: "Summer 2021",
+               612: "Fall 2021", 613: "Spring 2022", 614: "Summer 2022", 672: "Fall 2022"}
 uwrs_headers_4q = ['name', 'id', 'sis_id', 'root_account', 'section', 'section_id', 'section_sis_id', 'submitted',
                    'question1', '1.0', 'question2', '2.0', 'question3', '3.0', 'question4', '4.0',
                    'n correct',
@@ -18,6 +19,7 @@ uwrs_drop_headers_5q = ['root_account', '1.0', '2.0', '3.0', '4.0', 'question5',
 uwrs_drop_headers_6q = ['root_account', 'disclaimer', '0.0', '1.0', '2.0', '3.0', '4.0', 'question5',
                         '5.0', 'n correct', 'n incorrect', 'score']
 
+scores = ['score1', 'score2', 'score3', 'score4']
 answer_mapping = {'Not at all': 1, 'A little bit': 2, 'Somewhat': 3, 'Quite a bit': 4, 'Very much': 5}
 
 term_codes = {343: 202020, 578: 202030, 579: 202040, 580: 202120, 611: 202130, 612: 202140, 613: 202220, 614: 202230,
