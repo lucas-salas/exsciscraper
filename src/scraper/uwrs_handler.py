@@ -112,9 +112,11 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
     :param post_uwrs:
     """
     # Change names to lowercase for later comparisons
-    summary_df = pre_uwrs["name"].str.lower()
-    summary_df["section"] = pre_uwrs["section"]
-    # Unnecessary namedtuple to perform set of operations on both dataframes
+    tmp_name_col = pre_uwrs["name"].str.lower()
+    # Create base summary df
+    summary_df = pd.concat([tmp_name_col, pre_uwrs["section"]], axis=1)
+
+    # (Probably) Unnecessary namedtuple to perform set of operations on both dataframes
     UwDf = namedtuple('UwDf', ['pp', 'df'])
     df_tuple_list = [UwDf('pre', pre_uwrs), UwDf('post', post_uwrs)]
     for dft in df_tuple_list:
@@ -138,6 +140,6 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
     return summary_df
 
 
-def save_no_demographics(summary_df, term_id):
-    filename = f"[PRELIMINARY] {constants.valid_terms[term_id]} UWRS No Demographics.csv"
+def save_no_demographics(summary_df, term_id, prelim_ver=1):
+    filename = f"[PRELIMINARY_v{prelim_ver}] {constants.valid_terms[term_id]} UWRS No Demographics.csv"
     summary_df.to_csv(f"../../reports/uwrs_out/{filename}")
