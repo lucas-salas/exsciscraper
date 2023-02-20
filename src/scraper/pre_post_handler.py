@@ -1,39 +1,85 @@
 import pandas as pd
 
+from scraper import constants
+
+# TODO create docstrings
 class PrePostHandler:
     """
     Class for cleaning up pre and post quiz pairs
     """
 
+    def __init__(self, term_id):
+        self.term_id = term_id
+
     def concat_df(self, df_list: list[pd.DataFrame]):
         """ Concatenate a list of dataframes and return them sorted by student id """
         df_dirty = pd.concat(df_list, axis=0, ignore_index=True)
         return_df = df_dirty.sort_values(by=["id"], ignore_index=True)
+        # Add banner-style term code for later use
+        return_df['term_code'] = constants.term_codes[self.term_id]
         return return_df
 
-    def clean_dfs(self, input_df_dirty):
+    def clean_dfs(self, pre_df_dirty, post_df_dirty):
         """
-        Sort values by student canvas id and drop rows containing nan-like values
-        :param input_df_dirty: pd.DataFrame
+        Sort values by student canvas id and drop rows containing nan-like values, add uid column
+        :param pre_df_dirty: pd.DataFrame
+        :param post_df_dirty: pd.DataFrame
         :return: pd.DataFrame
         """
-        tmp = input_df_dirty.sort_values(by=['id'], ignore_index=True)
-        df_dirty = tmp.dropna().reset_index(drop=True)
-        return df_dirty
+        # Put dfs in a list to loop over and perform same operations on both
+        df_list = [pre_df_dirty, post_df_dirty]
+        # Temporary list to not modify original
+        tmp_list = []
+        for df in df_list:
+            # Add uid column
+            df['uid'] = self._generate_uids(df)
+            # Sort values and Drop NaN and reset index so index is sequential again
+            tmp_list.append(df.dropna(axis=0)
+                            .sort_values(by=['id'], ignore_index=True)
+                            .reset_index(drop=True))
+        # Convert section_id to int because sometimes it has trailing zeroes?
+        for df in tmp_list:
+            df['section_id'] = df['section_id'].astype('int64')
+        # Return dfs with single submissions dropped
+        return self._drop_single_submissions(tmp_list[0], tmp_list[1])
 
-    def _generate_uids(self, input_df):
-        # TODO generate term codes here for use in uid
-        # tmp_id = input_df['name'] + input_df[]
-        # submission_uids
-        pass
+    @staticmethod
+    def _generate_uids(input_df):
+        """
+        Create a unique identifier for each entry consisting of their name, section, and banner-style termcode
+        :param :class:`pandas.Dataframe` input_df:
+        :return:
+        """
+        uid_col = input_df['name'].str.lower().replace(' ', '', regex=False) \
+                  + input_df['section'] + input_df['term_code'].astype('str')
+        return uid_col
 
-    def drop_single_submissions(self, pre_df, post_df):
+    @staticmethod
+    def _drop_single_submissions(pre_df, post_df):
         """
         Drop quiz submissions who didn't take both pre and post assessments.
         :param pre_df:
         :param post_df:
         :return:
         """
-        pass
+        # Create lists for pre post ids to iterate over and compare
+        pre_uids = [uid for uid in pre_df['uid']]
+        post_uids = [uid for uid in post_df['uid']]
 
+        pre_drop_counter = 0
+        pre_drop_indices = []
+        for i in range(len(pre_uids)):
+            if pre_uids[i] not in post_uids:
+                pre_drop_indices.append(i)
+                pre_drop_counter += 1
 
+        post_drop_counter = 0
+        post_drop_indices = []
+        for i in range(len(post_uids)):
+            if post_uids[i] not in pre_uids:
+                post_drop_indices.append(i)
+                post_drop_counter += 1
+        pre_return = pre_df.drop(labels=pre_drop_indices, axis=0)
+        post_return = post_df.drop(labels=post_drop_indices, axis=0)
+
+        return pre_return.reset_index(drop=True), post_return.reset_index(drop=True)

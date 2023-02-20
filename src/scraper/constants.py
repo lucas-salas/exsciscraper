@@ -17,3 +17,8 @@ uwrs_drop_headers_5q = ['root_account', '1.0', '2.0', '3.0', '4.0', 'question5',
                         'score']
 uwrs_drop_headers_6q = ['root_account', 'disclaimer', '0.0', '1.0', '2.0', '3.0', '4.0', 'question5',
                         '5.0', 'n correct', 'n incorrect', 'score']
+
+answer_mapping = {'Not at all': 1, 'A little bit': 2, 'Somewhat': 3, 'Quite a bit': 4, 'Very much': 5}
+
+term_codes = {343: 202020, 578: 202030, 579: 202040, 580: 202120, 611: 202130, 612: 202140, 613: 202220, 614: 202230,
+              672: 202240}

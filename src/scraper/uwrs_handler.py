@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-import pandas
 import pandas as pd
+
+from helpers.helpers import SearchTerms
 from scraper import constants
 from scraper import quiz_scraper
-from helpers.helpers import SearchTerms
-from helpers import helpers
+
 
 @dataclass
 class UwrsListPair:
@@ -20,8 +20,12 @@ class UwrsHandler:
         self.canwrap = canwrap
         self.course_designation = "HLAC"
 
-    def get_uwrs_quizzes(self, enrollment_term: int, pre_post: str):
-        """ Function to consolidate scraper functionality, specific to uwrs quizzes """
+    def get_uwrs_quizzes(self, enrollment_term, pre_post):
+        """
+        Function to consolidate scraper functionality, specific to uwrs quizzes
+        :param int enrollment_term:
+        :param str pre_post:
+        """
         # pre_post validation
         if pre_post not in ["pre", "post"]:
             raise ValueError
@@ -39,7 +43,8 @@ class UwrsHandler:
         return quiz_scraper.build_quiz_wrappers(updated_quiz_list)
 
     def build_df_list(self, wrapped_list):
-        """ Build dataframe list from list of report download urls
+        """
+        Build dataframe list from list of report download urls
         :param wrapped_list: list[quiz_scraper.QuizWrapper]
         :return: list[pandas.Dataframe]
         """
@@ -57,18 +62,26 @@ class UwrsHandler:
                     drop_headers = constants.uwrs_drop_headers_6q
                 case _:
                     raise ValueError(f"Invalid number of questions: {quiz.question_count}")
-            tmp_df = pd.read_csv(quiz.report_download_url, header=0, names=headers)
-            df = tmp_df.drop(drop_headers, axis=1)
-            df_list.append(df)
+
+            df_list.append(pd.read_csv(quiz.report_download_url, header=0, names=headers)
+                           .drop(drop_headers, axis=1)
+                           )
         return df_list
 
 
-
-    def clean_dfs(self, pre_uwrs_dirty, post_uwrs_dirty):
-        """ Drop students who aren't in both pre and post, and reset index
-        :param pre_uwrs_dirty: pandas.DataFrame
-        :param post_uwrs_dirty: pandas.DataFrame
+    def translate_scores(self, uwrs_df):
+        """
+        Convert the text base scores to numerical scores in the questions columns
+        :param uwrs_df:
         :return:
         """
+        questions = []
+        scores = []
+        for i in range(1,5):
+            score = f"score{i}"
+            scores.append(score)
+            question = f"question{i}"
+            questions.append(question)
 
 
+        pass
