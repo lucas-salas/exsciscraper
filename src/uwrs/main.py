@@ -52,6 +52,8 @@ demographics_info["name"] = demog_handler.concat_names(demographics_info)
 demographics_info["section"] = demog_handler.create_canvas_style_section(demographics_info)
 # Add banner style term code column
 uwrs_no_demographics.insert(loc=2, column="term_code", value=constants.term_codes[enrollment_term])
-# demographics_info['term_code'] = constants.term_codes[enrollment_term]
-
+# Create demographics df with only columns of interest
+reduced_demographics = demog_handler.reduce_demographics_info(demographics_info)
+# Add uid col to reduced_demographics
+reduced_demographics['uid'] = prep_hand.generate_uids(reduced_demographics)
 print()

@@ -4,16 +4,28 @@ import pandas as pd
 
 
 def load_demographics(pkl=False):
+    """
+    Loads and returns demographics data
+    :param pkl: Load from pickled file?
+    :type pkl: bool
+    :return:
+    :rtype: pandas.core.frame.DataFrame
+    """
     # TODO create an SQL database for student demographic info
     if pkl:
-        with open("../../resources/pickles/demograhics.pkl", "rb") as file:
+        with open("../../resources/pickles/demographics.pkl", "rb") as file:
             return pickle.load(file)
     return pd.read_excel('../../resources/demographics.xlsx')
 
 
 def update_demographics_pkl(demographics_xlsx):
+    """
+    Updates demographics.pkl by reading spreadsheet
+    :param demographics_xlsx: Path to new demographics excel
+    :type demographics_xlsx: str
+    """
     demographics_info = pd.read_excel(demographics_xlsx)
-    with open("../../resources/pickles/demograhics.pkl", "wb") as file:
+    with open("../../resources/pickles/demographics.pkl", "wb") as file:
         pickle.dump(demographics_info, file)
 
 
@@ -59,3 +71,10 @@ def create_canvas_style_section(demographics_info):
         demographics_info['Course Identification'].str.slice(start=-4) + '-' + \
         demographics_info[
             'Course Section'].astype('str')
+
+
+def reduce_demographics_info(demographics_info):
+    # create a new demog df with only columns of interest
+    return demographics_info[
+        ['name', 'section', 'Term Code', 'Final Grade', 'GradePoints', 'Overall GPA', 'Gender', 'Gender Code',
+         'Ethnicity', 'Ethnicity Code', 'First-Generation Indicator', 'Birth Date']]
