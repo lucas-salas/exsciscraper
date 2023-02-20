@@ -28,8 +28,14 @@ prep_hand = pre_post_handler.PrePostHandler(enrollment_term)
 pre_uwrs_dirty = prep_hand.concat_df(pre_uwrs_df_list)
 post_uwrs_dirty = prep_hand.concat_df(post_uwrs_df_list)
 
-pre_uwrs, post_uwrs = prep_hand.clean_dfs(pre_uwrs_dirty, post_uwrs_dirty)
+pre_uwrs_no_score, post_uwrs_no_score = prep_hand.clean_dfs(pre_uwrs_dirty, post_uwrs_dirty)
+pre_uwrs = qhandler.translate_scores(pre_uwrs_no_score)
+post_uwrs = qhandler.translate_scores(post_uwrs_no_score)
 
+# Add columns for summary score and t-score
+for df in [pre_uwrs, post_uwrs]:
+    df['summary_score'] = qhandler.summarize_scores(df)
+    df['t_score'] = qhandler.normalize_sums(df)
 
 
 print()

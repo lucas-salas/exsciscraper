@@ -82,6 +82,27 @@ class UwrsHandler:
             scores.append(score)
             question = f"question{i}"
             questions.append(question)
+            uwrs_df[score] = uwrs_df[question].map(constants.answer_mapping)
+
+        return uwrs_df
+
+    @staticmethod
+    def summarize_scores(uwrs_df):
+            """
+            Return column for summary score
+            :param uwrs_df:
+            :return:
+            """
+            scores = ['score1', 'score2', 'score3', 'score4']
+            return uwrs_df[scores].sum(axis=1)
+
+    @staticmethod
+    def normalize_sums(uwrs_df):
+        """
+        Return column for t-score conversion of summary score
+        :param uwrs_df:
+        """
+        return uwrs_df['summary_score'].map(constants.t_score_dict)
 
 
-        pass
+
