@@ -78,3 +78,31 @@ def reduce_demographics_info(demographics_info):
     return demographics_info[
         ['name', 'section', 'Term Code', 'Final Grade', 'GradePoints', 'Overall GPA', 'Gender', 'Gender Code',
          'Ethnicity', 'Ethnicity Code', 'First-Generation Indicator', 'Birth Date']]
+
+
+def build_semi_final_df(uwrs_no_demographics, reduced_demographics):
+    # Columns from demographics NOT to be added to final summary df
+    dont_want_list = ['name', 'section', 'uid', 'Term Code']
+    # Filter out unwanted columns
+    demog_columns = [col for col in reduced_demographics.columns.tolist() if col not in dont_want_list]
+    row_iterator = uwrs_no_demographics.itertuples()
+    series_list = []
+    for row in row_iterator:
+        # Find entries by uid that appear in both dataframes
+        search_result_series = reduced_demographics.index[reduced_demographics['uid'] == row.uid]
+        # List search results (places where uid match, should only be one place)
+        search_result = search_result_series.tolist()
+        if len(search_result) == 1:
+            # Extract match index from list ([0] because there should only be one)
+            ind = search_result[0]
+            # Get uwrs at current iteration (it's just `row` but we need to index it)
+            uwrs_series = uwrs_no_demographics.iloc[row.Index]
+            # Get match row from demographics (only columns that we want)
+            demographics_series = reduced_demographics.iloc[ind].loc[demog_columns]
+            # Concat our series and transpose to give us a column for final summary df
+            series_list.append(pd.concat([uwrs_series, demographics_series]).to_frame().transpose())
+    return pd.concat(series_list, axis=0, ignore_index=True)
+
+
+def de_identify_df(input_df):
+    return input_df.drop(['name', 'uid'], axis=1)

@@ -1,9 +1,10 @@
 import pickle
+
+import demog_handler
 from scraper import constants
 from scraper import pre_post_handler
 from scraper import quiz_scraper
 from scraper import uwrs_handler
-import demog_handler
 
 enrollment_term: int = 613
 
@@ -54,6 +55,14 @@ demographics_info["section"] = demog_handler.create_canvas_style_section(demogra
 uwrs_no_demographics.insert(loc=2, column="term_code", value=constants.term_codes[enrollment_term])
 # Create demographics df with only columns of interest
 reduced_demographics = demog_handler.reduce_demographics_info(demographics_info)
-# Add uid col to reduced_demographics
-reduced_demographics['uid'] = prep_hand.generate_uids(reduced_demographics)
+# Add uid col to reduced_demographics (insert to right of term code col)
+insert_ind = reduced_demographics.columns.get_loc("Term Code") + 1
+reduced_demographics.insert(insert_ind, 'uid', prep_hand.generate_uids(reduced_demographics))
+# Add uid col to uwrs df (insert to right of term code col)
+insert_ind = uwrs_no_demographics.columns.get_loc("term_code") + 1
+uwrs_no_demographics.insert(insert_ind, 'uid', prep_hand.generate_uids(uwrs_no_demographics))
+semi_final_df = demog_handler.build_semi_final_df(uwrs_no_demographics, reduced_demographics)
+
+# Create final, de-identified dataframe
+final_df = demog_handler.de_identify_df(semi_final_df)
 print()

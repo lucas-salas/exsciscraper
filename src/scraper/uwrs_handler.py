@@ -101,7 +101,9 @@ class UwrsHandler:
         Return column for t-score conversion of summary score
         :param uwrs_df:
         """
-        return uwrs_df['summary_score'].map(constants.t_score_dict)
+        t_score_col = uwrs_df['summary_score'].map(constants.t_score_dict)
+        # Round t score to 1 decimal since that's sig figs based on provided conversion table
+        return t_score_col.round(decimals=1)
 
 
 def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
@@ -128,7 +130,8 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
     # Add score change columns
     for i in range(1, len(constants.scores) + 1):
         summary_df[f"score{i}_change"] = post_uwrs[f"score{i}"] - pre_uwrs[f"score{i}"]
-    summary_df["t_score_change"] = post_uwrs["t_score"] - pre_uwrs["t_score"]
+    tmp_t_score_change = post_uwrs["t_score"] - pre_uwrs["t_score"]
+    summary_df["t_score_change"] = tmp_t_score_change.round(decimals=1)
     # If save is true
     if to_csv:
         try:
@@ -143,3 +146,6 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
 def save_no_demographics(summary_df, term_id, prelim_ver=1):
     filename = f"[PRELIMINARY_v{prelim_ver}] {constants.valid_terms[term_id]} UWRS No Demographics.csv"
     summary_df.to_csv(f"../../reports/uwrs_out/{filename}")
+
+
+

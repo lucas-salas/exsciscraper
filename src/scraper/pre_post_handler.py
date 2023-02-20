@@ -55,9 +55,8 @@ class PrePostHandler:
             term_code_col = input_df['term_code'].astype('str')
         except KeyError:
             term_code_col = input_df['Term Code'].astype('str')
-
-        uid_col = input_df['name'].str.lower().replace(' ', '', regex=False) \
-                  + input_df['section'] + term_code_col
+        tmp_name_col = input_df['name'].str.lower().replace(' ', '', regex=False)
+        uid_col = tmp_name_col + input_df['section'] + term_code_col
         return uid_col
 
     @staticmethod
