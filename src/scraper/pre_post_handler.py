@@ -2,6 +2,7 @@ import pandas as pd
 
 from scraper import constants
 
+
 # TODO create docstrings
 class PrePostHandler:
     """
@@ -32,7 +33,7 @@ class PrePostHandler:
         tmp_list = []
         for df in df_list:
             # Add uid column
-            df['uid'] = self._generate_uids(df)
+            df['uid'] = self.generate_uids(df)
             # Sort values and Drop NaN and reset index so index is sequential again
             tmp_list.append(df.dropna(axis=0)
                             .sort_values(by=['id'], ignore_index=True)
@@ -44,14 +45,19 @@ class PrePostHandler:
         return self._drop_single_submissions(tmp_list[0], tmp_list[1])
 
     @staticmethod
-    def _generate_uids(input_df):
+    def generate_uids(input_df):
         """
         Create a unique identifier for each entry consisting of their name, section, and banner-style termcode
         :param :class:`pandas.Dataframe` input_df:
         :return:
         """
+        try:
+            term_code_col = input_df['term_code'].astype('str')
+        except KeyError:
+            term_code_col = input_df['Term Code'].astype('str')
+
         uid_col = input_df['name'].str.lower().replace(' ', '', regex=False) \
-                  + input_df['section'] + input_df['term_code'].astype('str')
+                  + input_df['section'] + term_code_col
         return uid_col
 
     @staticmethod
