@@ -4,7 +4,7 @@ import demog_handler
 from scraper import constants
 from scraper import pre_post_handler as prep_hand
 from scraper import quiz_scraper
-from scraper import uwrs_handler
+from uwrs import uwrs_handler
 
 enrollment_term: int = 613
 # Whether to skip the api calls and use local pickle
