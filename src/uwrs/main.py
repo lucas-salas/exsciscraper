@@ -2,7 +2,7 @@ import pickle
 
 import demog_handler
 from scraper import constants
-from scraper import pre_post_handler
+from scraper import pre_post_handler as prep_hand
 from scraper import quiz_scraper
 from scraper import uwrs_handler
 
@@ -26,9 +26,9 @@ with open('../../resources/pickles/pre_uwrs_df_list.pkl', 'rb') as file:
 with open('../../resources/pickles/post_uwrs_df_list.pkl', 'rb') as file:
     post_uwrs_df_list = pickle.load(file)
 
-prep_hand = pre_post_handler.PrePostHandler(enrollment_term)
-pre_uwrs_dirty = prep_hand.concat_df(pre_uwrs_df_list)
-post_uwrs_dirty = prep_hand.concat_df(post_uwrs_df_list)
+
+pre_uwrs_dirty = prep_hand.concat_df(pre_uwrs_df_list, term_id=enrollment_term)
+post_uwrs_dirty = prep_hand.concat_df(post_uwrs_df_list, term_id=enrollment_term)
 
 pre_uwrs_no_score, post_uwrs_no_score = prep_hand.clean_dfs(pre_uwrs_dirty, post_uwrs_dirty)
 pre_uwrs = uwrs_handler.translate_scores(pre_uwrs_no_score)
