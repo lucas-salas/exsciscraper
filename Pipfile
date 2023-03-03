@@ -25,6 +25,8 @@ jupyterlab = "*"
 ipython = "*"
 requests-mock = "*"
 pytest-dependency = "*"
+sphinx = "*"
+pandera = "*"
 
 [dev-packages]
 
