@@ -7,25 +7,25 @@ from scraper import quiz_scraper
 from scraper import uwrs_handler
 
 enrollment_term: int = 613
+# Whether to skip the api calls and use local pickle
+use_pickle = True
 
-# canwrap = quiz_scraper.CanvasWrapper()
+canwrap = quiz_scraper.CanvasWrapper()
 
-# pre_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "pre", canwrap, course_designation="HLAC")
-# post_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "post", canwrap, course_designation="HLAC")
-# with open('../../resources/pickles/pre_uwrs_wrapped.pkl', 'rb') as file:
-#     pre_uwrs_wrapped = pickle.load(file)
-# with open('../../resources/pickles/post_uwrs_wrapped.pkl', 'rb') as file:
-#     post_uwrs_wrapped = pickle.load(file)
-
-
-# pre_uwrs_df_list = uwrs_handler.build_df_list(pre_uwrs_wrapped)
-# post_uwrs_df_list = uwrs_handler.build_df_list(post_uwrs_wrapped)
-
-with open('../../resources/pickles/pre_uwrs_df_list.pkl', 'rb') as file:
-    pre_uwrs_df_list = pickle.load(file)
-with open('../../resources/pickles/post_uwrs_df_list.pkl', 'rb') as file:
-    post_uwrs_df_list = pickle.load(file)
-
+if use_pickle:
+    with open('../../resources/pickles/pre_uwrs_wrapped.pkl', 'rb') as file:
+        pre_uwrs_wrapped = pickle.load(file)
+    with open('../../resources/pickles/post_uwrs_wrapped.pkl', 'rb') as file:
+        post_uwrs_wrapped = pickle.load(file)
+    with open('../../resources/pickles/pre_uwrs_df_list.pkl', 'rb') as file:
+        pre_uwrs_df_list = pickle.load(file)
+    with open('../../resources/pickles/post_uwrs_df_list.pkl', 'rb') as file:
+        post_uwrs_df_list = pickle.load(file)
+else:
+    pre_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "pre", canwrap, course_designation="HLAC")
+    post_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "post", canwrap, course_designation="HLAC")
+    pre_uwrs_df_list = uwrs_handler.build_df_list(pre_uwrs_wrapped)
+    post_uwrs_df_list = uwrs_handler.build_df_list(post_uwrs_wrapped)
 
 pre_uwrs_dirty = prep_hand.concat_df(pre_uwrs_df_list, term_id=enrollment_term)
 post_uwrs_dirty = prep_hand.concat_df(post_uwrs_df_list, term_id=enrollment_term)

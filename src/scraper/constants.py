@@ -1,5 +1,5 @@
 # valid_terms = {"sp22": 613, "su22": 614}
-
+# TODO document what each of these constants are
 valid_terms = {343: "Spring 2020", 578: "Summer 2020", 579: "Fall 2020", 580: "Spring 2021", 611: "Summer 2021",
                612: "Fall 2021", 613: "Spring 2022", 614: "Summer 2022", 672: "Fall 2022"}
 uwrs_headers_4q = ['name', 'id', 'sis_id', 'root_account', 'section', 'section_id', 'section_sis_id', 'submitted',
