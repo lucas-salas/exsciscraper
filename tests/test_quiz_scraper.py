@@ -1,5 +1,5 @@
 import random
-from unittest import mock
+from unittest.mock import MagicMock
 
 import canvasapi
 import canvasapi.course
@@ -7,15 +7,22 @@ import canvasapi.paginated_list
 import canvasapi.quiz
 import pytest
 import requests_mock
+from faker import Faker
 
 import settings
+import src.scraper.quiz_scraper
 import util
 from src.scraper import quiz_scraper
 
 
 @pytest.fixture
+def fake():
+    return Faker()
+
+
+@pytest.fixture
 def ufaker():
-    return util.UwrsFaker(613)
+    return util.UwrsFaker(settings.TERM_ID)
 
 
 @requests_mock.Mocker()
@@ -24,12 +31,18 @@ def raw_canvas():
     return canvasapi.Canvas(settings.BASE_URL, settings.API_KEY)
 
 
+# @pytest.fixture
+# def account():
+#     with mock.patch.object(canvasapi.account, "Account", autospec=True) as MockAccount:
+#         MockAccount.return_value.name = "Exercise Science"
+#         MockAccount.return_value.id = random.randint(600, 750)
+#         yield MockAccount.return_value
 @pytest.fixture
 def account():
-    with mock.patch.object(canvasapi.account, "Account", autospec=True) as MockAccount:
-        MockAccount.return_value.name = "Exercise Science"
-        MockAccount.return_value.id = random.randint(600, 750)
-        yield MockAccount.return_value
+    items_dict = {'name': "Exercise Science", 'id': random.randint(600, 750)}
+    # mock_account.__str__ = canvasapi.account.Account.__str__
+    account_instance = canvasapi.account.Account(None, items_dict)
+    yield account_instance
 
 
 def test_mock_account(account):
@@ -38,26 +51,30 @@ def test_mock_account(account):
     assert hasattr(account, 'id')
 
 
-
 @pytest.fixture
 def course_factory(ufaker):
     def make_course():
-        with mock.patch.object(canvasapi.course, "Course", autospec=True) as MockCourse:
-            # TODO vary course designation?, 0 total students?
-            mock_instance = MockCourse.return_value
-            mock_instance.course_code = ufaker.course_code()
-            mock_instance.name = mock_instance.course_code
-            mock_instance.enrollment_term_id = ufaker.term_id
-            mock_instance.id = ufaker.course_id()
-            mock_instance.total_students = ufaker.course_total_students()
-            return mock_instance
+        # TODO vary course designation?, 0 total students?
+        items_dict = {'course_code': ufaker.course_code(),
+                      'enrollment_term_id': ufaker.term_id,
+                      'id': ufaker.course_id(),
+                      'total_students': ufaker.course_total_students()}
+        items_dict['name'] = items_dict['course_code']
+        return canvasapi.course.Course(None, items_dict)
 
-    return make_course
+    yield make_course
 
 
 @pytest.fixture
 def course(course_factory):
-    return course_factory()
+    yield course_factory()
+
+
+def test_mock_course(course):
+    assert isinstance(course, canvasapi.course.Course)
+    attr_list = ['course_code', 'enrollment_term_id', 'id', 'total_students']
+    for attr in attr_list:
+        assert hasattr(course, attr)
 
 
 @pytest.fixture
@@ -75,27 +92,42 @@ def test_mock_courses(courses):
 
 
 @pytest.fixture
-def user(raw_canvas, mock):
-    requires = {"user": ["get_by_id_self"]}
-    register_uris(requires, mock)
-    return raw_canvas.get_current_user()
+def user(faker, ufaker):
+    items_dict = {'name': faker.name(),
+                  'id': ufaker.user_id()}
+    items_dict['sortable_name'] = ufaker.reversed_name(items_dict['name'])
+    yield canvasapi.user.User(None, items_dict)
 
+
+def test_mock_user(user):
+    assert isinstance(user, canvasapi.user.User)
+    attr_list = ['name', 'id', 'sortable_name']
+    for attr in attr_list:
+        assert hasattr(user, attr)
+
+
+# @pytest.fixture
+# def canvas(monkeypatch, raw_canvas, account, user):
+#     monkeypatch.setenv("BASE_URL", settings.BASE_URL)
+#     monkeypatch.setenv("API_KEY", settings.API_KEY)
+#     monkeypatch.setenv("ACCOUNT_ID", settings.ACCOUNT_ID)
+#     canvwrap = quiz_scraper.CanvasWrapper()
+#     monkeypatch.setattr(canvwrap, "canvas", raw_canvas)
+#     monkeypatch.setattr(canvwrap, "account", account)
+#     monkeypatch.setattr(canvwrap, "user", user)
+#     return canvwrap
 
 @pytest.fixture
-def canvas(monkeypatch, raw_canvas, account, user):
-    monkeypatch.setenv("BASE_URL", settings.BASE_URL)
-    # monkeypatch.setattr(quiz_scraper.CanvasWrapper, '__init__', lambda self: None)
-    # monkeypatch.setattr(quiz_scraper.CanvasWrapper, "_BASE_URL", '')
-    # monkeypatch.setattr(quiz_scraper.CanvasWrapper, "_API_KEY", '')
-    monkeypatch.setenv("API_KEY", settings.API_KEY)
-    # monkeypatch.setattr(quiz_scraper.CanvasWrapper, "_ACCOUNT_ID", 1)
-    # TODO import account_id value from settings
-    monkeypatch.setenv("ACCOUNT_ID", "1")
-    wrapper = quiz_scraper.CanvasWrapper()
-    monkeypatch.setattr(wrapper, "canvas", raw_canvas)
-    monkeypatch.setattr(wrapper, "account", account)
-    monkeypatch.setattr(wrapper, "user", user)
-    return wrapper
+def canvas(raw_canvas, account, user):
+    mock_wrapper = MagicMock(spec=src.scraper.quiz_scraper.CanvasWrapper)
+    mock_wrapper.canvas = raw_canvas
+    mock_wrapper.account = account
+    mock_wrapper.user = user
+    yield mock_wrapper
+
+
+def test_mock_canvas(canvas):
+    assert isinstance(canvas, src.scraper.quiz_scraper.QuizWrapper)
 
 
 @pytest.fixture(params=settings.search_str)
@@ -111,9 +143,8 @@ def course_designation(request):
 
 
 class TestQuizScraper:
-    def test_get_account_courses(self, mock, canvas):
-        requires = {"account": ["get_courses", "get_courses_page_2"]}
-        register_uris(requires, mock)
+    def test_get_account_courses(self, monkeypatch, courses, canvas):
+
         course_list = canvas.get_account_courses(1)
         assert isinstance(course_list, list)
         assert (len(course_list) > 0)

@@ -2,7 +2,6 @@ import json
 import random as rand
 from random import randint as ri
 import os
-import pickledb
 import requests_mock
 from src.scraper.constants import valid_terms
 
@@ -98,6 +97,18 @@ class UwrsFaker:
 
     def course_total_students(self):
         return ri(1,35)
+
+    def user_id(self):
+        return ri(200000, 300000)
+
+    def reversed_name(self, name: str):
+        split_name = name.rsplit(' ', 1)
+        # Add a comma after the last name
+        split_name[-1] += ', '
+        # Move the last name to the front
+        split_name.insert(0, split_name.pop())
+        return ''.join(split_name)
+
 
 
 # def data_faker(sample_data):
