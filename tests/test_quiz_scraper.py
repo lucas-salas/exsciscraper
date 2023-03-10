@@ -1,5 +1,6 @@
 import random
 from unittest import mock
+
 import canvasapi
 import canvasapi.course
 import canvasapi.paginated_list
@@ -8,8 +9,13 @@ import pytest
 import requests_mock
 
 import settings
+import util
 from src.scraper import quiz_scraper
-from util import register_uris
+
+
+@pytest.fixture
+def ufaker():
+    return util.UwrsFaker(613)
 
 
 @requests_mock.Mocker()
@@ -18,26 +24,6 @@ def raw_canvas():
     return canvasapi.Canvas(settings.BASE_URL, settings.API_KEY)
 
 
-# @pytest.fixture(scope="module")
-# def mock():
-#     with requests_mock.Mocker() as m:
-#         yield m
-
-
-# @pytest.fixture
-# def account(raw_canvas, mock):
-#     requires = {"account": ["get_by_id"]}
-#     register_uris(requires, mock)
-#     return raw_canvas.get_account(1)
-# @pytest.fixture
-# def account():
-#     with mock.patch('canvasapi.account.Account', autospec=True) as MockAccount:
-#         account_instance = MockAccount.return_value
-#         account_instance.name = "Exercise Science"
-#         account_instance.id = random.randint(600, 750)
-#
-#         # monkeypatch.setattr(account_instance, 'name', 'Exercise Science')
-#         return account_instance
 @pytest.fixture
 def account():
     with mock.patch.object(canvasapi.account, "Account", autospec=True) as MockAccount:
@@ -52,19 +38,36 @@ def test_mock_account(account):
     assert hasattr(account, 'id')
 
 
-# @pytest.fixture
-# def courses(account, mock):
-#     requires = {"account": ["get_courses", "get_courses_page_2"]}
-#     register_uris(requires, mock)
-#     return account.get_courses()
 
 @pytest.fixture
-def courses():
-    course_list = []
-    for _ in range(3):
+def course_factory(ufaker):
+    def make_course():
         with mock.patch.object(canvasapi.course, "Course", autospec=True) as MockCourse:
-            course_list.append(MockCourse.return_value)
+            # TODO vary course designation?, 0 total students?
+            mock_instance = MockCourse.return_value
+            mock_instance.course_code = ufaker.course_code()
+            mock_instance.name = mock_instance.course_code
+            mock_instance.enrollment_term_id = ufaker.term_id
+            mock_instance.id = ufaker.course_id()
+            mock_instance.total_students = ufaker.course_total_students()
+            return mock_instance
+
+    return make_course
+
+
+@pytest.fixture
+def course(course_factory):
+    return course_factory()
+
+
+@pytest.fixture
+def courses(course_factory):
+    course_list = []
+    for _ in range(5):
+        course_list.append(course_factory())
+
     yield course_list
+
 
 def test_mock_courses(courses):
     assert isinstance(courses, list)

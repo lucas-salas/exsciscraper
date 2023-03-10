@@ -1,8 +1,10 @@
 import json
-import random
-import pytest
+import random as rand
+from random import randint as ri
+import os
+import pickledb
 import requests_mock
-
+from src.scraper.constants import valid_terms
 
 # from settings import max_samples
 
@@ -14,7 +16,7 @@ def sample(iterable, samples):
         return iterable
     # TODO input verification for samples
     n = min([len(iterable), samples])
-    return random.choices(iterable, k=n)
+    return rand.choices(iterable, k=n)
 
 
 BASE_URL_WITH_VERSION = "https://example.com/api/v1/"
@@ -77,15 +79,26 @@ class UwrsFaker:
         self.term_id = enrollment_term_id
 
     def section(self):
-        course_num = random.randint(1000, 2999)
-        sec_num = random.randint(300, 700)
+        course_num = rand.randint(1000, 2999)
+        sec_num = rand.randint(300, 700)
         return f"HLAC-{course_num}-{sec_num}"
 
     def account_id(self):
-        return random.randint(600, 750)
+        return rand.randint(600, 750)
 
     def account_name(self):
         return "Exercise Science"
+
+    def course_code(self):
+        semester = valid_terms[self.term_id][:2] + valid_terms[self.term_id][-2:]
+        return self.section() + f'-{semester}'
+
+    def course_id(self):
+        return rand.randint(500000, 800000)
+
+    def course_total_students(self):
+        return ri(1,35)
+
 
 # def data_faker(sample_data):
 #     """
@@ -106,6 +119,13 @@ class UwrsFaker:
 #     # if hyphen or other important punctuation, leave as is
 #     pass
 
+# def load_pickles():
+#     return pickledb.load(f'{os.path.dirname(__file__)}/testing_pickles/testing_pickles.db', auto_dump=True)
+
+
+
+
 
 if __name__ == '__main__':
-    pass
+    # pkldb = load_pickles()
+    print()

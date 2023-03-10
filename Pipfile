@@ -29,6 +29,7 @@ sphinx = "*"
 pandera = "*"
 faker = "*"
 varname = "*"
+faker-datasets = "*"
 
 [dev-packages]
 

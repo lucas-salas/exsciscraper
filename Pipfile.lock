@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5a2fc76dbdf64b073be135e22dd6a19530836db5d7e079947963b7a26e642860"
+            "sha256": "e6825eef918e9c524fb1e1ac3c07f9b5aa878382b6d373180b27b31f65ecba07"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -506,6 +506,14 @@
             "index": "pypi",
             "version": "==17.6.0"
         },
+        "faker-datasets": {
+            "hashes": [
+                "sha256:4c44976ebfd0ef24f2c7191161efe72146672309f40938209f4c185cbd845cde",
+                "sha256:d1f557e3d9da618cc7d5b0fc5240acd73fb051c15c845219abdda00a431f4acd"
+            ],
+            "index": "pypi",
+            "version": "==0.1.0"
+        },
         "fastjsonschema": {
             "hashes": [
                 "sha256:04fbecc94300436f628517b05741b7ea009506ce8f946d40996567c669318490",
@@ -775,11 +783,11 @@
         },
         "jupyter-ydoc": {
             "hashes": [
-                "sha256:3163bd4745eedd46d4bba6df52ab26be3c5c44c3a8aaf247635062486ea8f84f",
-                "sha256:596a9ae5986b59f8776c42430b5ad516405963574078ab801781933c9690be93"
+                "sha256:3ac51abfe378c6aeb62a449e8f0241bede1205f0199b0d27429140cbba950f79",
+                "sha256:98db7785215873c64d7dfcb1b741f41df11994c4b3d7e2957e004b392d6f11ea"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==0.2.2"
+            "version": "==0.2.3"
         },
         "jupyterlab": {
             "hashes": [
@@ -1152,11 +1160,11 @@
         },
         "platformdirs": {
             "hashes": [
-                "sha256:13b08a53ed71021350c9e300d4ea8668438fb0046ab3937ac9a29913a1a1350a",
-                "sha256:accc3665857288317f32c7bebb5a8e482ba717b474f3fc1d18ca7f9214be0cef"
+                "sha256:024996549ee88ec1a9aa99ff7f8fc819bb59e2c3477b410d90a16d32d6e707aa",
+                "sha256:e5986afb596e4bb5bde29a79ac9061aa955b94fca2399b7aaac4090860920dd8"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==3.1.0"
+            "version": "==3.1.1"
         },
         "pluggy": {
             "hashes": [
