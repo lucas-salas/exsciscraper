@@ -13,3 +13,4 @@ resources/**
 .pkl
 .csv
 .xlsx
+*.pkl
