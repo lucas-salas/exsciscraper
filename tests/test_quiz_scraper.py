@@ -1,13 +1,15 @@
+import random
+from unittest import mock
+import canvasapi
 import canvasapi.course
 import canvasapi.paginated_list
 import canvasapi.quiz
 import pytest
 import requests_mock
+
 import settings
 from src.scraper import quiz_scraper
 from util import register_uris
-from util import sample
-import json
 
 
 @requests_mock.Mocker()
@@ -16,24 +18,57 @@ def raw_canvas():
     return canvasapi.Canvas(settings.BASE_URL, settings.API_KEY)
 
 
-@pytest.fixture(scope="module")
-def mock():
-    with requests_mock.Mocker() as m:
-        yield m
+# @pytest.fixture(scope="module")
+# def mock():
+#     with requests_mock.Mocker() as m:
+#         yield m
 
+
+# @pytest.fixture
+# def account(raw_canvas, mock):
+#     requires = {"account": ["get_by_id"]}
+#     register_uris(requires, mock)
+#     return raw_canvas.get_account(1)
+# @pytest.fixture
+# def account():
+#     with mock.patch('canvasapi.account.Account', autospec=True) as MockAccount:
+#         account_instance = MockAccount.return_value
+#         account_instance.name = "Exercise Science"
+#         account_instance.id = random.randint(600, 750)
+#
+#         # monkeypatch.setattr(account_instance, 'name', 'Exercise Science')
+#         return account_instance
+@pytest.fixture
+def account():
+    with mock.patch.object(canvasapi.account, "Account", autospec=True) as MockAccount:
+        MockAccount.return_value.name = "Exercise Science"
+        MockAccount.return_value.id = random.randint(600, 750)
+        yield MockAccount.return_value
+
+
+def test_mock_account(account):
+    assert isinstance(account, canvasapi.account.Account)
+    assert hasattr(account, 'name')
+    assert hasattr(account, 'id')
+
+
+# @pytest.fixture
+# def courses(account, mock):
+#     requires = {"account": ["get_courses", "get_courses_page_2"]}
+#     register_uris(requires, mock)
+#     return account.get_courses()
 
 @pytest.fixture
-def account(raw_canvas, mock):
-    requires = {"account": ["get_by_id"]}
-    register_uris(requires, mock)
-    return raw_canvas.get_account(1)
+def courses():
+    course_list = []
+    for _ in range(3):
+        with mock.patch.object(canvasapi.course, "Course", autospec=True) as MockCourse:
+            course_list.append(MockCourse.return_value)
+    yield course_list
 
-
-@pytest.fixture
-def courses(account, mock):
-    requires = {"account": ["get_courses", "get_courses_page_2"]}
-    register_uris(requires, mock)
-    return account.get_courses()
+def test_mock_courses(courses):
+    assert isinstance(courses, list)
+    assert isinstance(courses[0], canvasapi.course.Course)
 
 
 @pytest.fixture

@@ -1,8 +1,7 @@
 import json
 import random
-import sys
+import pytest
 import requests_mock
-import re
 
 
 # from settings import max_samples
@@ -73,24 +72,39 @@ def register_uris(requirements, requests_mocker, base_url=None, json_payload=Fal
                 print(e)
 
 
-def data_faker(sample_data):
-    """
-    Primitive function to return an object like the one provided
+class UwrsFaker:
+    def __init__(self, enrollment_term_id):
+        self.term_id = enrollment_term_id
 
-    Parameters
-    ----------
-    sample_data:object
-        The desired fake object
-    """
-    if sample_data == "section":
+    def section(self):
         course_num = random.randint(1000, 2999)
         sec_num = random.randint(300, 700)
         return f"HLAC-{course_num}-{sec_num}"
 
-    # if string
-    # use string.ascii* to determine what kind of char to replace with
-    # if hyphen or other important punctuation, leave as is
-    pass
+    def account_id(self):
+        return random.randint(600, 750)
+
+    def account_name(self):
+        return "Exercise Science"
+
+# def data_faker(sample_data):
+#     """
+#     Primitive function to return an object like the one provided
+#
+#     Parameters
+#     ----------
+#     sample_data:object
+#         The desired fake object
+#     """
+#     if sample_data == "section":
+#         course_num = random.randint(1000, 2999)
+#         sec_num = random.randint(300, 700)
+#         return f"HLAC-{course_num}-{sec_num}"
+#
+#     # if string
+#     # use string.ascii* to determine what kind of char to replace with
+#     # if hyphen or other important punctuation, leave as is
+#     pass
 
 
 if __name__ == '__main__':

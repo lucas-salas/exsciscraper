@@ -1,6 +1,6 @@
 import pandas as pd
 
-from scraper import constants
+from src.scraper import constants
 
 
 # TODO create docstrings
