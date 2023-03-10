@@ -1,5 +1,6 @@
 import random
 from unittest.mock import MagicMock
+from unittest import mock
 
 import canvasapi
 import canvasapi.course
@@ -118,16 +119,18 @@ def test_mock_user(user):
 #     return canvwrap
 
 @pytest.fixture
-def canvas(raw_canvas, account, user):
-    mock_wrapper = MagicMock(spec=src.scraper.quiz_scraper.CanvasWrapper)
-    mock_wrapper.canvas = raw_canvas
-    mock_wrapper.account = account
-    mock_wrapper.user = user
-    yield mock_wrapper
+def canvas(monkeypatch, raw_canvas, account, user):
+    monkeypatch.delattr(quiz_scraper.CanvasWrapper, '__init__')
+    quiz_scraper.CanvasWrapper.canvas = raw_canvas
+    quiz_scraper.CanvasWrapper.account = account
+    quiz_scraper.CanvasWrapper.user = user
+    canvas_wrapper = quiz_scraper.CanvasWrapper()
+    yield canvas_wrapper
+
 
 
 def test_mock_canvas(canvas):
-    assert isinstance(canvas, src.scraper.quiz_scraper.QuizWrapper)
+    assert isinstance(canvas, src.scraper.quiz_scraper.CanvasWrapper)
 
 
 @pytest.fixture(params=settings.search_str)
