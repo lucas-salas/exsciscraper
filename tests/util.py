@@ -1,7 +1,8 @@
 import json
 import random
-
+import sys
 import requests_mock
+import re
 
 
 # from settings import max_samples
@@ -70,3 +71,27 @@ def register_uris(requirements, requests_mocker, base_url=None, json_payload=Fal
                 )
             except Exception as e:
                 print(e)
+
+
+def data_faker(sample_data):
+    """
+    Primitive function to return an object like the one provided
+
+    Parameters
+    ----------
+    sample_data:object
+        The desired fake object
+    """
+    if sample_data == "section":
+        course_num = random.randint(1000, 2999)
+        sec_num = random.randint(300, 700)
+        return f"HLAC-{course_num}-{sec_num}"
+
+    # if string
+    # use string.ascii* to determine what kind of char to replace with
+    # if hyphen or other important punctuation, leave as is
+    pass
+
+
+if __name__ == '__main__':
+    pass

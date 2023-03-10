@@ -1,14 +1,14 @@
 import pickle
 
 import demog_handler
-from scraper import constants
-from scraper import pre_post_handler as prep_hand
-from scraper import quiz_scraper
-from uwrs import uwrs_handler
+from src.scraper import constants
+from src.scraper import pre_post_handler as prep_hand
+from src.scraper import quiz_scraper
+from src.uwrs import uwrs_handler
 
 enrollment_term: int = 613
 # Whether to skip the api calls and use local pickle
-use_pickle = True
+use_pickle = False
 
 canwrap = quiz_scraper.CanvasWrapper()
 
