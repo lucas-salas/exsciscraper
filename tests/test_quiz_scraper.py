@@ -1,8 +1,6 @@
 import random
-from unittest.mock import MagicMock
-from unittest import mock
 
-import canvasapi
+import canvasapi as capi
 import canvasapi.course
 import canvasapi.paginated_list
 import canvasapi.quiz
@@ -29,25 +27,19 @@ def ufaker():
 @requests_mock.Mocker()
 @pytest.fixture
 def raw_canvas():
-    return canvasapi.Canvas(settings.BASE_URL, settings.API_KEY)
+    return capi.Canvas(settings.BASE_URL, settings.API_KEY)
 
 
-# @pytest.fixture
-# def account():
-#     with mock.patch.object(canvasapi.account, "Account", autospec=True) as MockAccount:
-#         MockAccount.return_value.name = "Exercise Science"
-#         MockAccount.return_value.id = random.randint(600, 750)
-#         yield MockAccount.return_value
 @pytest.fixture
 def account():
     items_dict = {'name': "Exercise Science", 'id': random.randint(600, 750)}
     # mock_account.__str__ = canvasapi.account.Account.__str__
-    account_instance = canvasapi.account.Account(None, items_dict)
+    account_instance = capi.account.Account(None, items_dict)
     yield account_instance
 
 
 def test_mock_account(account):
-    assert isinstance(account, canvasapi.account.Account)
+    assert isinstance(account, capi.account.Account)
     assert hasattr(account, 'name')
     assert hasattr(account, 'id')
 
@@ -61,7 +53,12 @@ def course_factory(ufaker):
                       'id': ufaker.course_id(),
                       'total_students': ufaker.course_total_students()}
         items_dict['name'] = items_dict['course_code']
-        return canvasapi.course.Course(None, items_dict)
+
+        def mock_to_json(self):
+            return {'id': self.id, 'name': self.name}
+
+        capi.course.Course.to_json = mock_to_json
+        return capi.course.Course(None, items_dict)
 
     yield make_course
 
@@ -72,7 +69,7 @@ def course(course_factory):
 
 
 def test_mock_course(course):
-    assert isinstance(course, canvasapi.course.Course)
+    assert isinstance(course, capi.course.Course)
     attr_list = ['course_code', 'enrollment_term_id', 'id', 'total_students']
     for attr in attr_list:
         assert hasattr(course, attr)
@@ -89,34 +86,59 @@ def courses(course_factory):
 
 def test_mock_courses(courses):
     assert isinstance(courses, list)
-    assert isinstance(courses[0], canvasapi.course.Course)
+    assert isinstance(courses[0], capi.course.Course)
 
 
 @pytest.fixture
-def user(faker, ufaker):
-    items_dict = {'name': faker.name(),
+def user(fake, ufaker):
+    items_dict = {'name': fake.name(),
                   'id': ufaker.user_id()}
     items_dict['sortable_name'] = ufaker.reversed_name(items_dict['name'])
-    yield canvasapi.user.User(None, items_dict)
+    yield capi.user.User(None, items_dict)
 
 
 def test_mock_user(user):
-    assert isinstance(user, canvasapi.user.User)
+    assert isinstance(user, capi.user.User)
     attr_list = ['name', 'id', 'sortable_name']
     for attr in attr_list:
         assert hasattr(user, attr)
 
 
-# @pytest.fixture
-# def canvas(monkeypatch, raw_canvas, account, user):
-#     monkeypatch.setenv("BASE_URL", settings.BASE_URL)
-#     monkeypatch.setenv("API_KEY", settings.API_KEY)
-#     monkeypatch.setenv("ACCOUNT_ID", settings.ACCOUNT_ID)
-#     canvwrap = quiz_scraper.CanvasWrapper()
-#     monkeypatch.setattr(canvwrap, "canvas", raw_canvas)
-#     monkeypatch.setattr(canvwrap, "account", account)
-#     monkeypatch.setattr(canvwrap, "user", user)
-#     return canvwrap
+@pytest.fixture
+def quiz_factory(fake, ufaker):
+    def make_quiz():
+        items_dict = {'id': ufaker.quiz_id(),
+                      'title': 'Resilience Questionnaire (Pre-Assessment)',
+                      'quiz_type': 'graded_survey',
+                      'question_count': 4,
+                      'quiz_reports_url': fake.uri(),
+                      'assignment_id': 10178776,
+                      'version_number': 4,
+                      'course_id': ufaker.course_id(),
+                      }
+
+        def mock_to_json(self):
+            return {'id': self.id, 'name': self.name}
+
+        capi.quiz.Quiz.to_json = mock_to_json
+        return capi.quiz.Quiz(None, items_dict)
+
+    yield make_quiz
+
+
+@pytest.fixture
+def quiz(quiz_factory):
+    yield quiz_factory()
+
+
+def test_quiz(quiz):
+    assert isinstance(quiz, capi.quiz.Quiz)
+
+
+@pytest.fixture
+def quiz_list(quiz_factory):
+    return [quiz_factory() for _ in range(5)]
+
 
 @pytest.fixture
 def canvas(monkeypatch, raw_canvas, account, user):
@@ -125,8 +147,8 @@ def canvas(monkeypatch, raw_canvas, account, user):
     quiz_scraper.CanvasWrapper.account = account
     quiz_scraper.CanvasWrapper.user = user
     canvas_wrapper = quiz_scraper.CanvasWrapper()
-    yield canvas_wrapper
-
+    # Need to use return for some reason, otherwise it produces multiple yields
+    return canvas_wrapper
 
 
 def test_mock_canvas(canvas):
@@ -146,12 +168,19 @@ def course_designation(request):
 
 
 class TestQuizScraper:
+
+    # TODO come back to this test
     def test_get_account_courses(self, monkeypatch, courses, canvas):
 
-        course_list = canvas.get_account_courses(1)
+        def mock_get_courses(**kwargs):
+            mock_paginated_course_list = util.MockPaginatedList(courses, content_class=capi.course.Course)
+            return mock_paginated_course_list
+
+        monkeypatch.setattr(canvas.account, 'get_courses', mock_get_courses)
+        course_list = canvas.get_account_courses(enrollment_term=settings.TERM_ID)
         assert isinstance(course_list, list)
         assert (len(course_list) > 0)
-        assert isinstance(course_list[0], canvasapi.course.Course)
+        assert isinstance(course_list[0], capi.course.Course)
         # Make sure the courses aren't empty
         for course in course_list:
             assert hasattr(course, "total_students")
@@ -159,10 +188,11 @@ class TestQuizScraper:
             assert hasattr(course, "enrollment_term_id")
 
     def test_filter_courses(self, courses, course_designation):
+        # TODO add random course designatinons to courses
         filtered_list = quiz_scraper.SearchHandler.filter_courses(courses, course_designation)
         assert isinstance(filtered_list, list)
         assert len(filtered_list) > 0
-        assert isinstance(filtered_list[0], canvasapi.course.Course)
+        assert isinstance(filtered_list[0], capi.course.Course)
         # Make sure the filtered courses all have correct designation
         for course in filtered_list:
             assert course.course_code[:4] == course_designation
@@ -171,13 +201,15 @@ class TestQuizScraper:
     def filtered_courses(self, courses, course_designation):
         return quiz_scraper.SearchHandler.filter_courses(courses, course_designation)
 
-    def test_search_quizzes(self, mock, filtered_courses, search_terms):
-        requires = {"course": ["list_quizzes", "list_quizzes2"]}
-        register_uris(requires, mock)
+    def test_search_quizzes(self, monkeypatch, quiz_list, filtered_courses, search_terms):
+        def mock_get_quizzes(self, **kwargs):
+            return util.MockPaginatedList(quiz_list, capi.quiz.Quiz)
+
+        monkeypatch.setattr(capi.course.Course, 'get_quizzes', mock_get_quizzes)
         search_results = quiz_scraper.SearchHandler.search_quizzes(filtered_courses, search_terms)
         assert isinstance(search_results, list)
         assert len(search_results) > 0
-        assert isinstance(search_results[0], canvasapi.quiz.Quiz)
+        assert isinstance(search_results[0], capi.quiz.Quiz)
         for quiz in search_results:
             # 4,5,6 should be only possible number of questions for these quizzes
             assert quiz.question_count in [4, 5, 6]
@@ -189,11 +221,11 @@ def filtered_courses(courses, course_designation):
     return quiz_scraper.SearchHandler.filter_courses(courses, course_designation)
 
 
-@pytest.fixture
-def quiz_list(mock, filtered_courses, search_terms):
-    requires = {"course": ["list_quizzes", "list_quizzes2"]}
-    register_uris(requires, mock)
-    return quiz_scraper.SearchHandler.search_quizzes(filtered_courses, search_terms)
+# @pytest.fixture
+# def quiz_search_list(mock, filtered_courses, search_terms):
+#     requires = {"course": ["list_quizzes", "list_quizzes2"]}
+#     register_uris(requires, mock)
+#     return quiz_scraper.SearchHandler.search_quizzes(filtered_courses, search_terms)
 
 
 @pytest.fixture
@@ -205,7 +237,7 @@ class TestReportHandler:
     def test__generate_reports(self, mock, rphandler, quiz_list):
         # Dynamically generate endpoints
         # TODO do somethings about this mess
-        for i in range(1, len(quiz_list) + 1):
+        for i in range(1, len(quiz_search_list) + 1):
             method_name = f"create_report{i}"
             data = {
                 method_name: {
@@ -227,7 +259,7 @@ class TestReportHandler:
         quiz_list_with_reports = rphandler._generate_reports()
         assert isinstance(quiz_list_with_reports, list) is True
         assert len(quiz_list_with_reports) == len(rphandler.quiz_list)
-        assert isinstance(quiz_list_with_reports[0], canvasapi.quiz.Quiz)
+        assert isinstance(quiz_list_with_reports[0], capi.quiz.Quiz)
         for quiz in quiz_list_with_reports:
             assert hasattr(quiz, "report")
             assert hasattr(quiz.report, "progress_url")
@@ -235,9 +267,9 @@ class TestReportHandler:
             assert quiz.updated is False
 
     @pytest.fixture
-    def quiz_list_w_reports(self, mock, rphandler, quiz_list):
+    def quiz_list_w_reports(self, mock, rphandler, quiz_search_list):
         # Dynamically generate endpoints
-        for i in range(1, len(quiz_list) + 1):
+        for i in range(1, len(quiz_search_list) + 1):
             method_name = f"create_report{i}"
             data = {
                 method_name: {
@@ -278,7 +310,7 @@ class TestReportHandler:
         assert isinstance(updated_quiz_list, list)
         assert len(updated_quiz_list) == len(rphandler.quiz_list)
         for quiz in updated_quiz_list:
-            assert isinstance(quiz, canvasapi.quiz.Quiz)
+            assert isinstance(quiz, capi.quiz.Quiz)
             assert hasattr(quiz, "updated")
             assert quiz.updated is True
             assert hasattr(quiz.report, "file")

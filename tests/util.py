@@ -1,9 +1,13 @@
 import json
+import random
 import random as rand
 from random import randint as ri
-import os
+
+import canvasapi
 import requests_mock
+
 from src.scraper.constants import valid_terms
+
 
 # from settings import max_samples
 
@@ -77,6 +81,12 @@ class UwrsFaker:
     def __init__(self, enrollment_term_id):
         self.term_id = enrollment_term_id
 
+
+    def _rand_id(self, num_dig):
+        min_val = 10**(num_dig - 1)
+        max_val = (10**num_dig) - 1
+        return random.randrange(min_val, max_val + 1)
+
     def section(self):
         course_num = rand.randint(1000, 2999)
         sec_num = rand.randint(300, 700)
@@ -96,10 +106,17 @@ class UwrsFaker:
         return rand.randint(500000, 800000)
 
     def course_total_students(self):
-        return ri(1,35)
+        return ri(1, 35)
 
     def user_id(self):
         return ri(200000, 300000)
+
+    def quiz_id(self):
+        return self._rand_id(7)
+
+    def assignment_id(self):
+        return self._rand_id(8)
+
 
     def reversed_name(self, name: str):
         split_name = name.rsplit(' ', 1)
@@ -111,30 +128,14 @@ class UwrsFaker:
 
 
 
-# def data_faker(sample_data):
-#     """
-#     Primitive function to return an object like the one provided
-#
-#     Parameters
-#     ----------
-#     sample_data:object
-#         The desired fake object
-#     """
-#     if sample_data == "section":
-#         course_num = random.randint(1000, 2999)
-#         sec_num = random.randint(300, 700)
-#         return f"HLAC-{course_num}-{sec_num}"
-#
-#     # if string
-#     # use string.ascii* to determine what kind of char to replace with
-#     # if hyphen or other important punctuation, leave as is
-#     pass
 
-# def load_pickles():
-#     return pickledb.load(f'{os.path.dirname(__file__)}/testing_pickles/testing_pickles.db', auto_dump=True)
+class MockPaginatedList(canvasapi.paginated_list.PaginatedList):
+    def __init__(self, courses, content_class):
+        super().__init__(content_class, None, None, None)
+        self._elements = courses
 
-
-
+    def _get_next_page(self):
+        return []
 
 
 if __name__ == '__main__':
