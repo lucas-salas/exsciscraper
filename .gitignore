@@ -9,6 +9,8 @@ resources/**
 /resources/
 /reports/
 **/.config/
+/testing_pickles/
 .pkl
 .csv
 .xlsx
+*.pkl

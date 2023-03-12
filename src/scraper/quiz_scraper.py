@@ -13,7 +13,8 @@ class CanvasWrapper:
     """ This class is a container for basic canvas objects like Canvas, User, and Account"""
 
     def __init__(self):
-        load_dotenv()
+        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+        load_dotenv(dotenv_path)
         _BASE_URL: str = os.getenv("BASE_URL")
         _API_KEY: str = os.getenv("API_KEY")
         _ACCOUNT_ID: int = int(os.getenv("ACCOUNT_ID"))

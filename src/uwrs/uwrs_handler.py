@@ -3,9 +3,9 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from helpers.helpers import SearchTerms
-from scraper import constants
-from scraper import quiz_scraper
+from src.helpers.helpers import SearchTerms
+from src.scraper import constants
+from src.scraper import quiz_scraper
 
 
 @dataclass

@@ -27,6 +27,9 @@ requests-mock = "*"
 pytest-dependency = "*"
 sphinx = "*"
 pandera = "*"
+faker = "*"
+varname = "*"
+faker-datasets = "*"
 
 [dev-packages]
 
