@@ -5,7 +5,7 @@ import pandas as pd
 
 from src.helpers.helpers import SearchTerms
 from src.scraper import constants
-from src.scraper import quiz_scraper
+from src.scraper import quiz_scraper as qs
 
 
 @dataclass
@@ -15,7 +15,7 @@ class UwrsListPair:
     post_list = []
 
 
-def get_uwrs_quizzes(enrollment_term, pre_post, canwrap, course_designation):
+def get_uwrs_quizzes(enrollment_term, pre_post, cwrap, course_designation):
     """
     Function to consolidate scraper functionality, specific to uwrs quizzes
     :param int enrollment_term:
@@ -27,15 +27,15 @@ def get_uwrs_quizzes(enrollment_term, pre_post, canwrap, course_designation):
     search_terms = SearchTerms("Resilience Questionnaire (Pre-Assessment)",
                                "Resilience Questionnaire (Post-Assessment)")._asdict()
     # Pull all account courses
-    master_course_list = canwrap.get_account_courses(enrollment_term)
+    master_course_list = cwrap.get_account_courses(enrollment_term)
     # Filter out non-HLAC courses
-    filtered_courses = quiz_scraper.SearchHandler.filter_courses(master_course_list, course_designation)
+    filtered_courses = qs.SearchHandler.filter_courses(master_course_list, course_designation)
     # Get all UWRS quizzes for course in course list
-    search_results = quiz_scraper.SearchHandler.search_quizzes(filtered_courses, search_terms[pre_post])
-    rph = quiz_scraper.ReportHandler(search_results)
-    updated_quiz_list = rph.fetch_updated_reports(canwrap.canvas)
+    search_results = qs.SearchHandler.search_quizzes(filtered_courses, search_terms[pre_post])
+    rph = qs.ReportHandler(search_results)
+    updated_quiz_list = rph.fetch_updated_reports(cwrap.canvas)
 
-    return quiz_scraper.build_quiz_wrappers(updated_quiz_list)
+    return qs.build_quiz_wrappers(updated_quiz_list)
 
 
 def build_df_list(wrapped_list):
