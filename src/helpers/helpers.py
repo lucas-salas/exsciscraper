@@ -7,7 +7,7 @@ from collections import namedtuple
 import varname
 from dotenv import load_dotenv
 
-
+Pair = namedtuple('Pair', ['pre', 'post'])
 def pgpr(iterable):
     [print(item) for item in iterable]
 
@@ -29,7 +29,6 @@ def text2score(answer: str):
             sys.exit(1)
 
 
-SearchTerms = namedtuple("SearchTerms", ["pre", "post"])
 
 
 def save(filename: str, input_object: object, term_id: int, for_testing=True):

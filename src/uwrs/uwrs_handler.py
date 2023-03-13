@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from src.helpers.helpers import SearchTerms
+from src.helpers.helpers import Pair
 from src.scraper import constants
 from src.scraper import quiz_scraper as qs
 

@@ -7,6 +7,7 @@ import canvasapi.exceptions
 import canvasapi.quiz
 import canvasapi.user
 from dotenv import load_dotenv
+from src.helpers.helpers import Pair
 
 from src.scraper.report_handler import ReportHandler
 
@@ -73,7 +74,8 @@ class QuizScraper:
         pre_rph = ReportHandler(search_results['pre'])
         post_rph = ReportHandler(search_results['post'])
         updated_quiz_lists = (pre_rph.fetch_reports(self.canvas), post_rph.fetch_reports(self.canvas))
-        return self._build_quiz_wrappers(updated_quiz_lists[0]), self._build_quiz_wrappers(updated_quiz_lists[1])
+        return Pair(self._build_quiz_wrappers(updated_quiz_lists[0]),
+                    self._build_quiz_wrappers(updated_quiz_lists[1]))
 
 
 class QuizWrapper:

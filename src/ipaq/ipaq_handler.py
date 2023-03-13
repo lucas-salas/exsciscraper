@@ -1,22 +1,23 @@
-from src.scraper import quiz_scraper as qs
-import src.scraper.quiz_scraper
+import pandas as pd
+import src.ipaq.ipaq_constants as ipaq_constants
 
 
+def build_df_list(wrapped_list):
+    """
+    Build dataframe list from list of report download urls
+    :param wrapped_list: list[quiz_scraper.QuizWrapper]
+    :return: list[pandas.Dataframe]
+    """
+    df_list = []
+    for quiz in wrapped_list:
+        match quiz.question_count:
+            case 7:
+                headers = ipaq_constants.ipaq_headers_8q
+                drop_headers = ipaq_constants.ipaq_drop_headers_8q
+            case _:
+                raise ValueError(f"Invalid number of questions: {quiz.question_count}")
 
-def get_ipaq_quizzes(enrollment_term_id, pre_post, cwrap: src.scraper.quiz_scraper.QuizScraper, course_designation):
-    # pre_post validation
-    if pre_post not in ["pre", "post"]:
-        raise ValueError
-
-    master_course_list = cwrap.get_account_courses(enrollment_term_id)
-    filtered_courses = qs.SearchHandler._filter_courses(master_course_list, course_designation)
-
-    search_terms = {'pre': 'International Physical Activity Questionnaire (Pre-assessment)',
-                    'post': 'International Physical Activity Questionnaire (Post-assessment)'}
-
-    search_results = qs.SearchHandler._search_quizzes(filtered_courses, search_terms[pre_post])
-    rph = qs.ReportHandler(search_results)
-    updated_quiz_list = rph.fetch_reports(cwrap.canvas)
-
-    return qs.build_quiz_wrappers(updated_quiz_list)
-
+        df_list.append(pd.read_csv(quiz.report_download_url, header=0, names=headers)
+                       .drop(drop_headers, axis=1)
+                       )
+    return df_list
