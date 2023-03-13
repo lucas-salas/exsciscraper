@@ -1,34 +1,39 @@
+from dataclasses import dataclass, field
+from collections import namedtuple
 import os
 import pickle
 import re
 import sys
-from collections import namedtuple
 
-import varname
 from dotenv import load_dotenv
+import varname
 
-Pair = namedtuple('Pair', ['pre', 'post'])
+
+# @dataclass
+# class Pair:
+#     pre: list = field(default_factory=list)
+#     post: list = field(default_factory=list)
+
+Pair = namedtuple('Pair', ['pre', 'post', 'term_id'])
 def pgpr(iterable):
     [print(item) for item in iterable]
 
 
 def text2score(answer: str):
     match answer:
-        case 'Not at all':
+        case "Not at all":
             return 1
-        case 'A little bit':
+        case "A little bit":
             return 2
-        case 'Somewhat':
+        case "Somewhat":
             return 3
-        case 'Quite a bit':
+        case "Quite a bit":
             return 4
-        case 'Very much':
+        case "Very much":
             return 5
         case _:
             print("text2score error: invalid input")
             sys.exit(1)
-
-
 
 
 def save(filename: str, input_object: object, term_id: int, for_testing=True):
@@ -36,7 +41,7 @@ def save(filename: str, input_object: object, term_id: int, for_testing=True):
     # TODO figure out how to define filename inside this function and remove parameter
     if re.fullmatch("\d\d\d", filename[-3:]):
         filename = filename[:-3]
-        if filename[-1] == '_':
+        if filename[-1] == "_":
             filename = filename[:-1]
 
     base_path = os.path.dirname(__file__)
@@ -50,7 +55,7 @@ def save(filename: str, input_object: object, term_id: int, for_testing=True):
         pickle.dump(input_object, file)
 
 
-def init_canvas(which_user='nate'):
+def init_canvas(which_user="nate"):
     """
     Function to create an authed canvas instance for development
     """
@@ -60,7 +65,7 @@ def init_canvas(which_user='nate'):
     ACCOUNT_ID: int = int(os.getenv("ACCOUNT_ID"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_list_333 = [1, 2, 3]
 
     save(varname.nameof(test_list_333), test_list_333, 613)

@@ -8,31 +8,36 @@ from src.scraper import constants
 from src.scraper import quiz_scraper as qs
 
 
-def build_df_list(wrapped_list):
+def build_df_list(wrapped_list_pair):
     """
     Build dataframe list from list of report download urls
-    :param wrapped_list: list[quiz_scraper.QuizWrapper]
-    :return: list[pandas.Dataframe]
-    """
-    df_list = []
-    for quiz in wrapped_list:
-        match quiz.question_count:
-            case 4:
-                headers = constants.uwrs_headers_4q
-                drop_headers = constants.uwrs_drop_headers_4q
-            case 5:
-                headers = constants.uwrs_headers_5q
-                drop_headers = constants.uwrs_drop_headers_5q
-            case 6:
-                headers = constants.uwrs_headers_6q
-                drop_headers = constants.uwrs_drop_headers_6q
-            case _:
-                raise ValueError(f"Invalid number of questions: {quiz.question_count}")
 
-        df_list.append(pd.read_csv(quiz.report_download_url, header=0, names=headers)
-                       .drop(drop_headers, axis=1)
-                       )
-    return df_list
+   """
+    df_list_dict = {}
+    for pre_post, wrapped_list, term_id in wrapped_list_pair:
+        df_list = []
+        for quiz in wrapped_list:
+            match quiz.question_count:
+                case 4:
+                    headers = constants.uwrs_headers_4q
+                    drop_headers = constants.uwrs_drop_headers_4q
+                case 5:
+                    headers = constants.uwrs_headers_5q
+                    drop_headers = constants.uwrs_drop_headers_5q
+                case 6:
+                    headers = constants.uwrs_headers_6q
+                    drop_headers = constants.uwrs_drop_headers_6q
+                case _:
+                    raise ValueError(f"Invalid number of questions: {quiz.question_count}")
+
+            df_list.append(
+                pd.read_csv(quiz.report_download_url, header=0, names=headers).drop(
+                    drop_headers, axis=1
+                )
+            )
+            df_list_dict[pre_post] = df_list
+
+    return Pair(df_list_dict['pre'], df_list_dict['post'], wrapped_list_pair.term_id)
 
 
 def translate_scores(uwrs_df):
@@ -55,10 +60,10 @@ def translate_scores(uwrs_df):
 
 def summarize_scores(uwrs_df):
     """
-        Return column for summary score
-        :param uwrs_df:
-        :return:
-        """
+    Return column for summary score
+    :param uwrs_df:
+    :return:
+    """
     return uwrs_df[constants.scores].sum(axis=1)
 
 
@@ -67,7 +72,7 @@ def normalize_sums(uwrs_df):
     Return column for t-score conversion of summary score
     :param uwrs_df:
     """
-    t_score_col = uwrs_df['summary_score'].map(constants.t_score_dict)
+    t_score_col = uwrs_df["summary_score"].map(constants.t_score_dict)
     # Round t score to 1 decimal since that's sig figs based on provided conversion table
     return t_score_col.round(decimals=1)
 
@@ -85,8 +90,8 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
     summary_df = pd.concat([tmp_name_col, pre_uwrs["section"]], axis=1)
 
     # (Probably) Unnecessary namedtuple to perform set of operations on both dataframes
-    UwDf = namedtuple('UwDf', ['pp', 'df'])
-    df_tuple_list = [UwDf('pre', pre_uwrs), UwDf('post', post_uwrs)]
+    UwDf = namedtuple("UwDf", ["pp", "df"])
+    df_tuple_list = [UwDf("pre", pre_uwrs), UwDf("post", post_uwrs)]
     for dft in df_tuple_list:
         # Add score columns
         for i in range(1, len(constants.scores) + 1):
@@ -101,7 +106,7 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
     # If save is true
     if to_csv:
         try:
-            term_id = kwargs['term_id']
+            term_id = kwargs["term_id"]
             save_no_demographics(summary_df, term_id)
         except KeyError:
             print("if to_csv=True, you must specify term_id")

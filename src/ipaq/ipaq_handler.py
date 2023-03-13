@@ -17,7 +17,9 @@ def build_df_list(wrapped_list):
             case _:
                 raise ValueError(f"Invalid number of questions: {quiz.question_count}")
 
-        df_list.append(pd.read_csv(quiz.report_download_url, header=0, names=headers)
-                       .drop(drop_headers, axis=1)
-                       )
+        df_list.append(
+            pd.read_csv(quiz.report_download_url, header=0, names=headers).drop(
+                drop_headers, axis=1
+            )
+        )
     return df_list

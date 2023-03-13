@@ -2,7 +2,7 @@ import pickle
 
 import demog_handler
 from src.scraper import constants
-from src.scraper import pre_post_handler as prep_hand
+from src.scraper.pre_post_handler import Cleaner
 from src.scraper import quiz_scraper
 from src.uwrs import uwrs_handler
 
@@ -10,29 +10,33 @@ enrollment_term: int = 613
 course_desg = "HLAC"
 # Whether to skip the api calls and use local pickle
 use_pickle = False
-search_terms = {'pre': "Resilience Questionnaire (Pre-Assessment)",
-                "post": "Resilience Questionnaire (Post-Assessment)"}
+search_terms = {
+    "pre": "Resilience Questionnaire (Pre-Assessment)",
+    "post": "Resilience Questionnaire (Post-Assessment)",
+}
 
 scraper = quiz_scraper.QuizScraper(enrollment_term)
 
 if use_pickle:
-    with open('../../resources/pickles/pre_uwrs_wrapped.pkl', 'rb') as file:
+    with open("../../resources/pickles/pre_uwrs_wrapped.pkl", "rb") as file:
         pre_uwrs_wrapped = pickle.load(file)
-    with open('../../resources/pickles/post_uwrs_wrapped.pkl', 'rb') as file:
+    with open("../../resources/pickles/post_uwrs_wrapped.pkl", "rb") as file:
         post_uwrs_wrapped = pickle.load(file)
-    with open('../../resources/pickles/pre_uwrs_df_list.pkl', 'rb') as file:
+    with open("../../resources/pickles/pre_uwrs_df_list.pkl", "rb") as file:
         pre_uwrs_df_list = pickle.load(file)
-    with open('../../resources/pickles/post_uwrs_df_list.pkl', 'rb') as file:
+    with open("../../resources/pickles/post_uwrs_df_list.pkl", "rb") as file:
         post_uwrs_df_list = pickle.load(file)
 else:
     # pre_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "pre", canwrap, course_designation="HLAC")
     # post_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "post", canwrap, course_designation="HLAC")
-    wrapper_quiz_pair = scraper.get_quizzes_with_reports(quiz_search_terms=search_terms, course_designation=course_desg)
-    pre_uwrs_df_list = uwrs_handler.build_df_list(wrapper_quiz_pair.pre)
-    post_uwrs_df_list = uwrs_handler.build_df_list(wrapper_quiz_pair.post)
+    wrapper_quiz_pair = scraper.get_quizzes_with_reports(
+        quiz_search_terms=search_terms, course_designation=course_desg
+    )
+    df_list_pair = uwrs_handler.build_df_list(wrapper_quiz_pair)
 
-pre_uwrs_dirty = prep_hand.concat_df(pre_uwrs_df_list, term_id=enrollment_term)
-post_uwrs_dirty = prep_hand.concat_df(post_uwrs_df_list, term_id=enrollment_term)
+cleaner = Cleaner(df_list_pair.term_id)
+dirty_df_pair = cleaner.concat_dfs(df_list_pair)
+no_score_df_pair = cleaner.clean_dfs(dirty_df_pair)
 
 # pre_uwrs_no_score, post_uwrs_no_score = prep_hand.clean_dfs(pre_uwrs_dirty, post_uwrs_dirty)
 # pre_uwrs = uwrs_handler.translate_scores(pre_uwrs_no_score)
