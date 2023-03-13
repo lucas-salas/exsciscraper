@@ -7,10 +7,13 @@ from src.scraper import quiz_scraper
 from src.uwrs import uwrs_handler
 
 enrollment_term: int = 613
+course_desg = "HLAC"
 # Whether to skip the api calls and use local pickle
 use_pickle = False
+search_terms = {'pre': "Resilience Questionnaire (Pre-Assessment)",
+                "post": "Resilience Questionnaire (Post-Assessment)"}
 
-canwrap = quiz_scraper.CanvasWrapper()
+scraper = quiz_scraper.QuizScraper(enrollment_term)
 
 if use_pickle:
     with open('../../resources/pickles/pre_uwrs_wrapped.pkl', 'rb') as file:
@@ -22,8 +25,9 @@ if use_pickle:
     with open('../../resources/pickles/post_uwrs_df_list.pkl', 'rb') as file:
         post_uwrs_df_list = pickle.load(file)
 else:
-    pre_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "pre", canwrap, course_designation="HLAC")
-    post_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "post", canwrap, course_designation="HLAC")
+    # pre_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "pre", canwrap, course_designation="HLAC")
+    # post_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "post", canwrap, course_designation="HLAC")
+    pre_uwrs_wrapped, post_uwrs_wrapped = scraper.get_quizzes_with_reports(quiz_search_terms=search_terms, course_designation=course_desg)
     pre_uwrs_df_list = uwrs_handler.build_df_list(pre_uwrs_wrapped)
     post_uwrs_df_list = uwrs_handler.build_df_list(post_uwrs_wrapped)
 

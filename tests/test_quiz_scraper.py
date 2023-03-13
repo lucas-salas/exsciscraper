@@ -142,17 +142,17 @@ def quiz_list(quiz_factory):
 
 @pytest.fixture
 def canvas(monkeypatch, raw_canvas, account, user):
-    monkeypatch.delattr(quiz_scraper.CanvasWrapper, '__init__')
-    quiz_scraper.CanvasWrapper.canvas = raw_canvas
-    quiz_scraper.CanvasWrapper.account = account
-    quiz_scraper.CanvasWrapper.user = user
-    canvas_wrapper = quiz_scraper.CanvasWrapper()
+    monkeypatch.delattr(quiz_scraper.QuizScraper, '__init__')
+    quiz_scraper.QuizScraper.canvas = raw_canvas
+    quiz_scraper.QuizScraper.account = account
+    quiz_scraper.QuizScraper.user = user
+    canvas_wrapper = quiz_scraper.QuizScraper()
     # Need to use return for some reason, otherwise it produces multiple yields
     return canvas_wrapper
 
 
 def test_mock_canvas(canvas):
-    assert isinstance(canvas, src.scraper.quiz_scraper.CanvasWrapper)
+    assert isinstance(canvas, src.scraper.quiz_scraper.QuizScraper)
 
 
 @pytest.fixture(params=settings.search_str)
@@ -189,7 +189,7 @@ class TestQuizScraper:
 
     def test_filter_courses(self, courses, course_designation):
         # TODO add random course designatinons to courses
-        filtered_list = quiz_scraper.SearchHandler.filter_courses(courses, course_designation)
+        filtered_list = quiz_scraper.SearchHandler._filter_courses(courses, course_designation)
         assert isinstance(filtered_list, list)
         assert len(filtered_list) > 0
         assert isinstance(filtered_list[0], capi.course.Course)
@@ -199,14 +199,14 @@ class TestQuizScraper:
 
     @pytest.fixture
     def filtered_courses(self, courses, course_designation):
-        return quiz_scraper.SearchHandler.filter_courses(courses, course_designation)
+        return quiz_scraper.SearchHandler._filter_courses(courses, course_designation)
 
     def test_search_quizzes(self, monkeypatch, quiz_list, filtered_courses, search_terms):
         def mock_get_quizzes(self, **kwargs):
             return util.MockPaginatedList(quiz_list, capi.quiz.Quiz)
 
         monkeypatch.setattr(capi.course.Course, 'get_quizzes', mock_get_quizzes)
-        search_results = quiz_scraper.SearchHandler.search_quizzes(filtered_courses, search_terms)
+        search_results = quiz_scraper.SearchHandler._search_quizzes(filtered_courses, search_terms)
         assert isinstance(search_results, list)
         assert len(search_results) > 0
         assert isinstance(search_results[0], capi.quiz.Quiz)
@@ -218,7 +218,7 @@ class TestQuizScraper:
 
 @pytest.fixture
 def filtered_courses(courses, course_designation):
-    return quiz_scraper.SearchHandler.filter_courses(courses, course_designation)
+    return quiz_scraper.SearchHandler._filter_courses(courses, course_designation)
 
 
 # @pytest.fixture
@@ -306,7 +306,7 @@ class TestReportHandler:
 
     def test_fetch_updated_reports(self, rphandler, canvas):
 
-        updated_quiz_list = rphandler.fetch_updated_reports(canvas.canvas)
+        updated_quiz_list = rphandler.fetch_reports(canvas.canvas)
         assert isinstance(updated_quiz_list, list)
         assert len(updated_quiz_list) == len(rphandler.quiz_list)
         for quiz in updated_quiz_list:
@@ -319,7 +319,7 @@ class TestReportHandler:
 
 @pytest.fixture
 def updated_quiz_list(rphandler, canvas):
-    return rphandler.fetch_updated_reports(canvas.canvas)
+    return rphandler.fetch_reports(canvas.canvas)
 
 
 class TestQuizWrapper:
