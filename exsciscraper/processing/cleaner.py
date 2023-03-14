@@ -1,6 +1,7 @@
 import pandas as pd
-from exsciscraper.scraper import constants
+
 from exsciscraper.helpers.helpers import ListPair, DfPair
+from exsciscraper.scraper import constants
 
 
 class Cleaner:
@@ -12,7 +13,6 @@ class Cleaner:
         df_dict = {}
         df_list_dict = df_list_pair.quizzes_asdict()
         for pre_post, df_list in df_list_dict.items():
-
             df_dirty = pd.concat(df_list, axis=0, ignore_index=True)
             return_df = df_dirty.sort_values(by=["id"], ignore_index=True)
             # Add banner-style term code for later use
@@ -25,22 +25,22 @@ class Cleaner:
         Sort values by student canvas id and drop rows containing nan-like values, add uid column
 
         """
+        return_dict = {}
         # Temporary list to not modify original
-        tmp_list = []
-        for pre_post, df, term_id in dirty_df_pair:
+        for pre_post, df in dirty_df_pair.dfs_asdict().items():
+            tmp_list = []
             # Add uid column
             df["uid"] = self.generate_uids(df)
             # Sort values and Drop NaN and reset index so index is sequential again
-            tmp_list.append(
-                df.dropna(axis=0)
-                .sort_values(by=["id"], ignore_index=True)
+            return_dict[pre_post] = df.dropna(axis=0) \
+                .sort_values(by=["id"], ignore_index=True) \
                 .reset_index(drop=True)
-            )
+
         # Convert section_id to int because sometimes it has trailing zeroes?
-        for df in tmp_list:
+        for pre_post, df in return_dict.items():
             df["section_id"] = df["section_id"].astype("int64")
         # Return dfs with single submissions dropped
-        return self._drop_single_submissions(tmp_list[0], tmp_list[1])
+        return self._drop_single_submissions(return_dict['pre'], return_dict['post'])
 
     def _drop_single_submissions(self, pre_df, post_df):
         """
@@ -69,7 +69,7 @@ class Cleaner:
         pre_return = pre_df.drop(labels=pre_drop_indices, axis=0)
         post_return = post_df.drop(labels=post_drop_indices, axis=0)
 
-        return ListPair(
+        return DfPair(
             pre_return.reset_index(drop=True),
             post_return.reset_index(drop=True),
             self.enrollment_term_id,

@@ -74,23 +74,23 @@ class QuizScraper:
     def get_quizzes_with_reports(
         self, quiz_search_terms: dict, course_designation, max_len=0
     ):
-        # print("Getting quizzes")
-        # semester_course_list = self._get_account_courses()
-        # filtered_course_list = self._filter_courses(
-        #     semester_course_list, course_designation
-        # )
-        # search_results = {}
-        # for pre_post in quiz_search_terms.keys():
-        #     search_results[pre_post] = self._search_quizzes(
-        #         filtered_course_list, quiz_search_terms[pre_post]
-        #     )
-        import pickle
-        # TODO delete
-        with open(
-            "/Users/spleut/Projects/Coding/exsciscraper/resources/pickles/search_results.pkl",
-            "rb",
-        ) as file:
-            search_results = pickle.load(file)
+        print("Getting quizzes")
+        semester_course_list = self._get_account_courses()
+        filtered_course_list = self._filter_courses(
+            semester_course_list, course_designation
+        )
+        search_results = {}
+        for pre_post in quiz_search_terms.keys():
+            search_results[pre_post] = self._search_quizzes(
+                filtered_course_list, quiz_search_terms[pre_post]
+            )
+        # import pickle
+        # # TODO delete
+        # with open(
+        #     "/Users/spleut/Projects/Coding/exsciscraper/resources/pickles/search_results.pkl",
+        #     "rb",
+        # ) as file:
+        #     search_results = pickle.load(file)
 
         if max_len:
             search_results["pre"] = search_results["pre"][:max_len]

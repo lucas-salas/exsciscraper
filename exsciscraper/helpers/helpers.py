@@ -4,7 +4,6 @@ import pickle
 import re
 import sys
 
-from dotenv import load_dotenv
 import pandas
 import varname
 
@@ -24,6 +23,7 @@ class ListPair:
     def quizzes_asdict(self):
         return {'pre': self.pre, 'post': self.post}
 
+
 # Pair = namedtuple('Pair', ['pre', 'post', 'term_id'])
 
 
@@ -32,6 +32,9 @@ class DfPair:
     pre: pandas.DataFrame
     post: pandas.DataFrame
     term_id: int
+
+    def dfs_asdict(self):
+        return {'pre': self.pre, 'post': self.post}
 
 
 def pgpr(iterable):
