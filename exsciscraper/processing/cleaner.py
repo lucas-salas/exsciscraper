@@ -16,7 +16,9 @@ class Cleaner:
             df_dirty = pd.concat(df_list, axis=0, ignore_index=True)
             return_df = df_dirty.sort_values(by=["id"], ignore_index=True)
             # Add banner-style term code for later use
-            return_df["term_code"] = exsciscraper.constants.terms.term_codes[self.enrollment_term_id]
+            return_df["term_code"] = exsciscraper.constants.terms.term_codes[
+                self.enrollment_term_id
+            ]
             df_dict[pre_post] = return_df
         return DfPair(df_dict["pre"], df_dict["post"], self.enrollment_term_id)
 
@@ -32,15 +34,17 @@ class Cleaner:
             # Add uid column
             df["uid"] = self.generate_uids(df)
             # Sort values and Drop NaN and reset index so index is sequential again
-            return_dict[pre_post] = df.dropna(axis=0) \
-                .sort_values(by=["id"], ignore_index=True) \
+            return_dict[pre_post] = (
+                df.dropna(axis=0)
+                .sort_values(by=["id"], ignore_index=True)
                 .reset_index(drop=True)
+            )
 
         # Convert section_id to int because sometimes it has trailing zeroes?
         for pre_post, df in return_dict.items():
             df["section_id"] = df["section_id"].astype("int64")
         # Return dfs with single submissions dropped
-        return self._drop_single_submissions(return_dict['pre'], return_dict['post'])
+        return self._drop_single_submissions(return_dict["pre"], return_dict["post"])
 
     def _drop_single_submissions(self, pre_df, post_df):
         """

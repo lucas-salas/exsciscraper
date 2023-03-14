@@ -38,11 +38,16 @@ class ReportHandler:
         get_progress = self.rph_canvas.get_progress
         progress_report = get_progress(quiz.report.progress_id)
         while True:
-            if progress_report.completion == 100 and progress_report.workflow_state == "completed":
+            if (
+                progress_report.completion == 100
+                and progress_report.workflow_state == "completed"
+            ):
                 return True
             progress_report = get_progress(quiz.report.progress_id)
             if timeout and time.time() - time1 > timeout:
-                print(f"_check_report_stats has timed out after {time.time() - time1} seconds.")
+                print(
+                    f"_check_report_stats has timed out after {time.time() - time1} seconds."
+                )
                 break
             time.sleep(0.1)
         # todo_indexes = list(range(len(quiz_list)))
