@@ -1,5 +1,5 @@
 import pandas as pd
-import exsciscraper.ipaq.ipaq_constants as ipaq_constants
+import source.ipaq.ipaq_constants as ipaq_constants
 
 
 def build_df_list(wrapped_list):

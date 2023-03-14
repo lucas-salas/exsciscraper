@@ -5,11 +5,12 @@ import re
 import sys
 
 from dotenv import load_dotenv
+import pandas
 import varname
 
 
 @dataclass
-class Pair:
+class ListPair:
     pre: list
     post: list
     term_id: int
@@ -20,6 +21,12 @@ class Pair:
     def quizzes(self):
         return self.pre, self.post
 # Pair = namedtuple('Pair', ['pre', 'post', 'term_id'])
+
+@dataclass
+class DfPair:
+    pre: pandas.DataFrame
+    post: pandas.DataFrame
+    term_id: int
 
 
 def pgpr(iterable):

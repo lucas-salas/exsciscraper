@@ -6,26 +6,28 @@
 
 def main():
     from exsciscraper.scraper import quiz_scraper
-    from exsciscraper.uwrs import uwrs_handler
-    import exsciscraper.helpers.pickle_handler as pickles
+    import uwrs_handler
+    import pickle
+    import sys
 
     enrollment_term: int = 613
     course_desg = "HLAC"
     # Whether to skip the api calls and use local pickle
-    use_pickle = True
+    use_pickle = False
     scraper = quiz_scraper.QuizScraper(enrollment_term)
-
     if use_pickle:
-        # with open("../../resources/pickles/pre_uwrs_wrapped.pkl", "rb") as file:
-        #     pre_uwrs_wrapped = pickle.load(file)
-        # with open("../../resources/pickles/post_uwrs_wrapped.pkl", "rb") as file:
-        #     post_uwrs_wrapped = pickle.load(file)
-        # with open("../../resources/pickles/pre_uwrs_df_list.pkl", "rb") as file:
-        #     pre_uwrs_df_list = pickle.load(file)
-        # with open("../../resources/pickles/post_uwrs_df_list.pkl", "rb") as file:
-        #     post_uwrs_df_list = pickle.load(file)
-        pickles.load_pickle("/Users/spleut/Projects/Coding/exsciscraper/resources/pickles/wrapped_list_pair.pkl")
-        wrapped_list_pair = pickles.wrapped_list_pair
+        file_path = "../../resources/pickles/wrapped_list_pair.pkl"
+        try:
+            with open(file_path, "rb") as file:
+                filename = file_path.split('/')[-1].replace('.pkl', '')
+                print(file)
+                globals()[filename] = pickle.load(file)
+                if filename in globals().keys():
+                    print(f"{filename} successfully loaded.")
+                    return globals()[filename]
+        except OSError:
+            print("Could not open pickles.")
+            sys.exit(1)
     else:
         # pre_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "pre", canwrap, course_designation="HLAC")
         # post_uwrs_wrapped = uwrs_handler.get_uwrs_quizzes(enrollment_term, "post", canwrap, course_designation="HLAC")
@@ -34,10 +36,10 @@ def main():
             "post": "Resilience Questionnaire (Post-Assessment)",
         }
         wrapped_list_pair = scraper.get_quizzes_with_reports(
-            quiz_search_terms=search_terms, course_designation=course_desg
+            quiz_search_terms=search_terms, course_designation=course_desg, max_len=15
         )
 
-    df_list_pair = uwrs_handler.build_df_list(wrapped_list_pair)
+    df_list_pair = uwrs_handler.build_df_list(wrapped_list_pair, max_len=15)
     print()
     # cleaner = Cleaner(df_list_pair.term_id)
     # dirty_df_pair = cleaner.concat_dfs(df_list_pair)

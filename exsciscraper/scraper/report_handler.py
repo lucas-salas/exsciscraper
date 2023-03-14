@@ -2,16 +2,16 @@ import canvasapi
 
 
 class ReportHandler:
-    def __init__(self, quiz_list):
-        self.quiz_list = quiz_list
+    def __init__(self, rph_canvas):
+        self.rph_canvas = rph_canvas
         self._generate_reports_has_run = False
         self._get_progress_id_has_run = False
         self._check_report_progress_has_run = False
 
-    def _generate_reports(self):
+    def _generate_reports(self, quiz_list: list):
         """Tell canvas to start generating reports for all the provided quizzes, and add the returned reports to the
         quiz object"""
-        for quiz in self.quiz_list:
+        for quiz in quiz_list:
             try:
                 quiz.report = quiz.create_report(
                     report_type="student_analysis", include=["file", "progress"]
@@ -22,37 +22,36 @@ class ReportHandler:
 
             quiz.updated = False
         self._generate_reports_has_run = True
-        return self.quiz_list
+        return quiz_list
 
-    def _get_progress_id(self):
+    def _get_progress_id(self, quiz_list: list):
         """Extract report progress id from progress objects"""
         if not self._generate_reports_has_run:
-            self._generate_reports()
+            self._generate_reports(quiz_list)
 
-        self._generate_reports()
-        for quiz in self.quiz_list:
+        for quiz in quiz_list:
             # Split url and get last element
             quiz.report.progress_id = int(quiz.report.progress_url.split("/")[-1])
         self._get_progress_id_has_run = True
-        return self.quiz_list
+        return quiz_list
 
-    def _check_report_progress(self, rph_canvas, timeout: int = 0):
+    def _check_report_progress(self, quiz_list: list, timeout: int = 0):
         """See if canvas is done generating all the reports"""
         if not self._get_progress_id_has_run:
-            self._get_progress_id()
+            self._get_progress_id(quiz_list)
         import time
 
         # Time to be used for timeout
         time1 = time.time()
-        todo_indexes = list(range(len(self.quiz_list)))
+        todo_indexes = list(range(len(quiz_list)))
         while True:
             # If no more indexes in todo_indexes, return true
             if not todo_indexes:
                 return True
             for i in todo_indexes:
                 # Use canvas object to
-                progress_report = rph_canvas.get_progress(
-                    self.quiz_list[i].report.progress_id
+                progress_report = self.rph_canvas.get_progress(
+                    quiz_list[i].report.progress_id
                 )
                 if (
                     progress_report.completion == 100
@@ -68,14 +67,17 @@ class ReportHandler:
         print("Error while checking reports.")
         return False
 
-    def fetch_reports(self, rph_canvas):
+    def fetch_reports(self, quiz_list):
         """Make sure the reports we have are updated and contain a download url"""
-        if self._check_report_progress(rph_canvas):
-            for quiz in self.quiz_list:
+        print()
+        # TODO add progress bar
+        # TODO create variable for method
+        if self._check_report_progress(quiz_list):
+            for quiz in quiz_list:
                 tmp_report = quiz.report
                 quiz.report = quiz.get_quiz_report(tmp_report)
                 quiz.updated = True
-            return self.quiz_list
+            return quiz_list
         else:
             print("Unable to fetch updated reports.")
             raise TimeoutError("Timed out.")

@@ -1,6 +1,6 @@
 import pandas as pd
 from exsciscraper.scraper import constants
-from exsciscraper.helpers.helpers import Pair
+from exsciscraper.helpers.helpers import ListPair
 
 
 class Cleaner:
@@ -16,7 +16,7 @@ class Cleaner:
             # Add banner-style term code for later use
             return_df["term_code"] = constants.term_codes[self.enrollment_term_id]
             df_dict[pre_post] = return_df
-        return Pair(df_dict['pre'], df_dict['post'], self.enrollment_term_id)
+        return ListPair(df_dict['pre'], df_dict['post'], self.enrollment_term_id)
 
     def clean_dfs(self, dirty_df_pair):
         """
@@ -67,7 +67,7 @@ class Cleaner:
         pre_return = pre_df.drop(labels=pre_drop_indices, axis=0)
         post_return = post_df.drop(labels=post_drop_indices, axis=0)
 
-        return Pair(pre_return.reset_index(drop=True), post_return.reset_index(drop=True), self.enrollment_term_id)
+        return ListPair(pre_return.reset_index(drop=True), post_return.reset_index(drop=True), self.enrollment_term_id)
 
     def generate_uids(self, input_df):
         """

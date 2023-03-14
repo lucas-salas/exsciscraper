@@ -4,7 +4,7 @@ import multiprocessing
 from varname import nameof
 import pandas as pd
 
-from exsciscraper.helpers.helpers import Pair
+from exsciscraper.helpers.helpers import ListPair
 import exsciscraper.helpers.settings as settings
 from exsciscraper.scraper import constants
 from exsciscraper.scraper import quiz_scraper as qs
@@ -33,6 +33,7 @@ def build_df_list(wrapped_list_pair, max_len=0):
 
     read_csv is largest time sink, to max_len is included for faster debugging
    """
+    print("Building DataFrame list")
     logging.basicConfig(filename=settings.log_file, level=logging.DEBUG, filemode='w')
 
     if __name__ == "__main__":
@@ -51,7 +52,7 @@ def build_df_list(wrapped_list_pair, max_len=0):
     # with Pool(3) as pool:
     #     df_list_dict['ost'].append(pool.map(get_df, [quiz for quiz in wrapped_list_pair.post]))
 
-    return Pair(df_list_dict['pre'], df_list_dict['post'], wrapped_list_pair.term_id)
+    return ListPair(df_list_dict['pre'], df_list_dict['post'], wrapped_list_pair.term_id)
 
 
 def translate_scores(uwrs_df):
