@@ -1,5 +1,7 @@
 # import logging
 # from multiprocessing import freeze_support
+import exsciscraper.processing.dataframe_handler
+
 
 # import src.helpers.settings as settings
 
@@ -39,7 +41,7 @@ def main():
             quiz_search_terms=search_terms, course_designation=course_desg, max_len=15
         )
 
-    df_list_pair = uwrs_handler.build_df_list(wrapped_list_pair, max_len=15)
+    df_list_pair = exsciscraper.processing.dataframe_handler.build_df_list(wrapped_list_pair, max_len=15)
     print()
     # cleaner = Cleaner(df_list_pair.term_id)
     # dirty_df_pair = cleaner.concat_dfs(df_list_pair)
