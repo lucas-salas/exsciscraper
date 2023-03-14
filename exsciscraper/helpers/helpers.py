@@ -20,7 +20,10 @@ class ListPair:
 
     def quizzes(self):
         return self.pre, self.post
+
+
 # Pair = namedtuple('Pair', ['pre', 'post', 'term_id'])
+
 
 @dataclass
 class DfPair:
@@ -67,7 +70,6 @@ def save(filename: str, input_object: object, term_id: int, for_testing=True):
         dest_path = pickle_test_path
     with open(f"{base_path}/{dest_path}/{filename}_{term_id}.pkl", "wb") as file:
         pickle.dump(input_object, file)
-
 
 
 if __name__ == "__main__":
