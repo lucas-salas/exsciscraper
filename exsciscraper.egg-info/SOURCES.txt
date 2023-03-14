@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+setup.py
+exsciscraper/__init__.py
+exsciscraper.egg-info/PKG-INFO
+exsciscraper.egg-info/SOURCES.txt
+exsciscraper.egg-info/dependency_links.txt
+exsciscraper.egg-info/top_level.txt
+tests/__init__.py
+tests/conftest.py
+tests/settings.py
+tests/test_quiz_scraper.py
+tests/test_uwrs_handler.py
+tests/util.py

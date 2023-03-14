@@ -14,3 +14,4 @@ resources/**
 .csv
 .xlsx
 *.pkl
+logs
