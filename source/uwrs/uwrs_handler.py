@@ -2,7 +2,8 @@ from collections import namedtuple
 
 import pandas as pd
 
-from exsciscraper.scraper import constants
+import exsciscraper.constants.scoring
+import exsciscraper.constants.terms
 
 
 def translate_scores(uwrs_df):
@@ -18,7 +19,7 @@ def translate_scores(uwrs_df):
         scores.append(score)
         question = f"question{i}"
         questions.append(question)
-        uwrs_df[score] = uwrs_df[question].map(constants.answer_mapping)
+        uwrs_df[score] = uwrs_df[question].map(exsciscraper.constants.scoring.answer_mapping)
 
     return uwrs_df
 
@@ -29,7 +30,7 @@ def summarize_scores(uwrs_df):
     :param uwrs_df:
     :return:
     """
-    return uwrs_df[constants.scores].sum(axis=1)
+    return uwrs_df[exsciscraper.constants.scoring.scores].sum(axis=1)
 
 
 def normalize_sums(uwrs_df):
@@ -37,7 +38,7 @@ def normalize_sums(uwrs_df):
     Return column for t-score conversion of summary score
     :param uwrs_df:
     """
-    t_score_col = uwrs_df["summary_score"].map(constants.t_score_dict)
+    t_score_col = uwrs_df["summary_score"].map(exsciscraper.constants.scoring.t_score_dict)
     # Round t score to 1 decimal since that's sig figs based on provided conversion table
     return t_score_col.round(decimals=1)
 
@@ -59,12 +60,12 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
     df_tuple_list = [UwDf("pre", pre_uwrs), UwDf("post", post_uwrs)]
     for dft in df_tuple_list:
         # Add score columns
-        for i in range(1, len(constants.scores) + 1):
+        for i in range(1, len(exsciscraper.constants.scoring.scores) + 1):
             summary_df[f"{dft.pp}_score{i}"] = dft.df[f"score{i}"]
         summary_df[f"{dft.pp}_summary_score"] = dft.df["summary_score"]
         summary_df[f"{dft.pp}_t_score"] = dft.df["t_score"]
     # Add score change columns
-    for i in range(1, len(constants.scores) + 1):
+    for i in range(1, len(exsciscraper.constants.scoring.scores) + 1):
         summary_df[f"score{i}_change"] = post_uwrs[f"score{i}"] - pre_uwrs[f"score{i}"]
     tmp_t_score_change = post_uwrs["t_score"] - pre_uwrs["t_score"]
     summary_df["t_score_change"] = tmp_t_score_change.round(decimals=1)
@@ -80,5 +81,5 @@ def create_summary_df(pre_uwrs, post_uwrs, to_csv=False, **kwargs):
 
 
 def save_no_demographics(summary_df, term_id, prelim_ver=1):
-    filename = f"[PRELIMINARY_v{prelim_ver}] {constants.valid_terms[term_id]} UWRS No Demographics.csv"
+    filename = f"[PRELIMINARY_v{prelim_ver}] {exsciscraper.constants.terms.valid_terms[term_id]} UWRS No Demographics.csv"
     summary_df.to_csv(f"../../reports/uwrs_out/{filename}")

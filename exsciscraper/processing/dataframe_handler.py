@@ -4,9 +4,9 @@ from multiprocessing import Pool
 
 import pandas as pd
 
+import exsciscraper.constants.headers
 from exsciscraper.helpers import settings as settings
 from exsciscraper.helpers.helpers import ListPair
-from exsciscraper.scraper import constants
 
 
 def build_df_list(wrapped_list_pair, max_len=0):
@@ -45,18 +45,27 @@ def get_correct_headers(quiz):
     if quiz_type == 'uwrs':
         match question_count:
             case 4:
-                headers = constants.uwrs_headers_4q
-                drop_headers = constants.uwrs_drop_headers_4q
+                headers = exsciscraper.constants.headers.uwrs_headers_4q
+                drop_headers = exsciscraper.constants.headers.uwrs_drop_headers_4q
             case 5:
-                headers = constants.uwrs_headers_5q
-                drop_headers = constants.uwrs_drop_headers_5q
+                headers = exsciscraper.constants.headers.uwrs_headers_5q
+                drop_headers = exsciscraper.constants.headers.uwrs_drop_headers_5q
             case 6:
-                headers = constants.uwrs_headers_6q
-                drop_headers = constants.uwrs_drop_headers_6q
+                headers = exsciscraper.constants.headers.uwrs_headers_6q
+                drop_headers = exsciscraper.constants.headers.uwrs_drop_headers_6q
             case _:
                 raise ValueError(f"Invalid number of questions: {question_count}")
     elif quiz_type == 'ipaq':
-        pass
+        match question_count:
+            case 7:
+                headers = exsciscraper.constants.headers.ipaq_headers_7q
+                drop_headers = exsciscraper.constants.headers.ipaq_drop_headers_7q
+            case 8:
+                headers = exsciscraper.constants.headers.ipaq_headers_8q
+                drop_headers = exsciscraper.constants.headers.ipaq_drop_headers_8q
+            case _:
+                raise ValueError(f"Invalid number of questions: {question_count}")
+
     elif quiz_type == 'qol':
         pass
     else:

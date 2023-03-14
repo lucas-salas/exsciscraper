@@ -67,7 +67,6 @@ class ReportHandler:
 
     def fetch_reports(self, quiz):
         """Make sure the reports we have are updated and contain a download url"""
-        print()
         # TODO add progress bar
         # TODO create variable for method
         if self._check_report_progress(quiz):

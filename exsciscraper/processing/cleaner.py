@@ -1,7 +1,7 @@
 import pandas as pd
 
+import exsciscraper.constants.terms
 from exsciscraper.helpers.helpers import ListPair, DfPair
-from exsciscraper.scraper import constants
 
 
 class Cleaner:
@@ -16,7 +16,7 @@ class Cleaner:
             df_dirty = pd.concat(df_list, axis=0, ignore_index=True)
             return_df = df_dirty.sort_values(by=["id"], ignore_index=True)
             # Add banner-style term code for later use
-            return_df["term_code"] = constants.term_codes[self.enrollment_term_id]
+            return_df["term_code"] = exsciscraper.constants.terms.term_codes[self.enrollment_term_id]
             df_dict[pre_post] = return_df
         return DfPair(df_dict["pre"], df_dict["post"], self.enrollment_term_id)
 

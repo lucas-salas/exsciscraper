@@ -1,5 +1,6 @@
 from exsciscraper.scraper import quiz_scraper as qs
-
+from exsciscraper.processing import dataframe_handler
+from exsciscraper.processing.cleaner import Cleaner
 
 def main():
     enrollment_term_id = 613
@@ -23,7 +24,4 @@ def main():
 
 
 if __name__ == '__main__':
-    from multiprocessing import freeze_support
-
-    freeze_support()
     main()

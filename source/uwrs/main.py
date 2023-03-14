@@ -1,8 +1,8 @@
 # import logging
 # from multiprocessing import freeze_support
+import exsciscraper.constants.terms
 from exsciscraper.processing import dataframe_handler
 from exsciscraper.processing.cleaner import Cleaner
-from exsciscraper.scraper import constants
 from source.uwrs import demog_handler
 
 
@@ -58,7 +58,8 @@ def main():
     # Add canvas style section column
     demographics_info["section"] = demog_handler.create_canvas_style_section(demographics_info)
     # Add banner style term code column
-    uwrs_no_demographics.insert(loc=2, column="term_code", value=constants.term_codes[enrollment_term])
+    uwrs_no_demographics.insert(loc=2, column="term_code", value=
+    exsciscraper.constants.terms.term_codes[enrollment_term])
     # Create demographics df with only columns of interest
     reduced_demographics = demog_handler.reduce_demographics_info(demographics_info)
     # Add uid col to reduced_demographics (insert to right of term code col)

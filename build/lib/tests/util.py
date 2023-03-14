@@ -6,7 +6,7 @@ from random import randint as ri
 import canvasapi
 import requests_mock
 
-from exsciscraper.scraper.constants import valid_terms
+from exsciscraper.constants.terms import valid_terms
 
 
 # from settings import max_samples
