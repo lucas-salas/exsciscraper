@@ -1,6 +1,6 @@
 import pandas as pd
 from exsciscraper.scraper import constants
-from exsciscraper.helpers.helpers import ListPair
+from exsciscraper.helpers.helpers import ListPair, DfPair
 
 
 class Cleaner:
@@ -10,13 +10,15 @@ class Cleaner:
     def concat_dfs(self, df_list_pair):
         """Concatenate a list of dataframes and return them sorted by student id"""
         df_dict = {}
-        for pre_post, df_list, term_id in df_list_pair:
+        df_list_dict = df_list_pair.quizzes_asdict()
+        for pre_post, df_list in df_list_dict.items():
+
             df_dirty = pd.concat(df_list, axis=0, ignore_index=True)
             return_df = df_dirty.sort_values(by=["id"], ignore_index=True)
             # Add banner-style term code for later use
             return_df["term_code"] = constants.term_codes[self.enrollment_term_id]
             df_dict[pre_post] = return_df
-        return ListPair(df_dict["pre"], df_dict["post"], self.enrollment_term_id)
+        return DfPair(df_dict["pre"], df_dict["post"], self.enrollment_term_id)
 
     def clean_dfs(self, dirty_df_pair):
         """

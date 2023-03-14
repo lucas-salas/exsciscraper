@@ -23,37 +23,25 @@ def build_df_list(wrapped_list_pair, max_len=0):
     if max_len:
         wrapped_list_pair.pre = wrapped_list_pair.pre[:max_len]
         wrapped_list_pair.post = wrapped_list_pair.post[:max_len]
-    df_list_dict = {'pre': [], 'post': []}
-    # for quiz in wrapped_list_pair.pre:
-    #     df_list_dict['pre'].append(get_df(quiz))
-    # for quiz in wrapped_list_pair.post:
-    #     df_list_dict['post'].append(get_df(quiz))
+    df_list_dict = {}
     with Pool(5) as pool:
-        df_list_dict['pre'].append(pool.map(func=get_df, iterable=[quiz for quiz in wrapped_list_pair.pre]))
-        df_list_dict['post'].append(pool.map(func=get_df, iterable=[quiz for quiz in wrapped_list_pair.post]))
+        df_list_dict['pre'] = pool.map(func=get_df, iterable=[quiz for quiz in wrapped_list_pair.pre])
+        df_list_dict['post'] = pool.map(func=get_df, iterable=[quiz for quiz in wrapped_list_pair.post])
 
     return ListPair(df_list_dict['pre'], df_list_dict['post'], wrapped_list_pair.term_id)
 
 
 def get_df(quiz):
-    match quiz.question_count:
-        case 4:
-            headers = constants.uwrs_headers_4q
-            drop_headers = constants.uwrs_drop_headers_4q
-        case 5:
-            headers = constants.uwrs_headers_5q
-            drop_headers = constants.uwrs_drop_headers_5q
-        case 6:
-            headers = constants.uwrs_headers_6q
-            drop_headers = constants.uwrs_drop_headers_6q
-        case _:
-            raise ValueError(f"Invalid number of questions: {quiz.question_count}")
+    # TODO this only needs to run for one quiz per batch
+    headers, drop_headers = get_correct_headers(quiz)
     return pd.read_csv(quiz.report_download_url, header=0, names=headers).drop(
         drop_headers, axis=1)
 
 
-
-def get_correct_headers(quiz_type, question_count):
+def get_correct_headers(quiz):
+    headers = []
+    drop_headers = []
+    quiz_type, question_count = identify_quiz_version(quiz)
     if quiz_type == 'uwrs':
         match question_count:
             case 4:
@@ -67,18 +55,23 @@ def get_correct_headers(quiz_type, question_count):
                 drop_headers = constants.uwrs_drop_headers_6q
             case _:
                 raise ValueError(f"Invalid number of questions: {question_count}")
-    pass
+    elif quiz_type == 'ipaq':
+        pass
+    elif quiz_type == 'qol':
+        pass
+    else:
+        raise ValueError("Invalid quiz type.")
+
+    return headers, drop_headers
 
 
 def identify_quiz_version(quiz):
     title = quiz.title
     if 'Resilience' in title:
-        quiz_type = 'uwrs'
+        return 'uwrs', quiz.question_count
     elif 'International' in title:
-        quiz_type = 'ipaq'
+        return 'ipaq', quiz.question_count
     elif 'Quality' in title:
-        quiz_type = 'qol'
+        return 'qol', quiz.question_count
     else:
         raise ValueError("Couldn't identify quiz quiz_type.")
-
-

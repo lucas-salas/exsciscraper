@@ -21,6 +21,8 @@ class ListPair:
     def quizzes(self):
         return self.pre, self.post
 
+    def quizzes_asdict(self):
+        return {'pre': self.pre, 'post': self.post}
 
 # Pair = namedtuple('Pair', ['pre', 'post', 'term_id'])
 

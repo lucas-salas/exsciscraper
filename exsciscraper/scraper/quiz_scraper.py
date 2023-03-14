@@ -85,7 +85,7 @@ class QuizScraper:
         #         filtered_course_list, quiz_search_terms[pre_post]
         #     )
         import pickle
-
+        # TODO delete
         with open(
             "/Users/spleut/Projects/Coding/exsciscraper/resources/pickles/search_results.pkl",
             "rb",
