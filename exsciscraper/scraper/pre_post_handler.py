@@ -1,6 +1,6 @@
 import pandas as pd
-from src.scraper import constants
-from src.helpers.helpers import Pair
+from exsciscraper.scraper import constants
+from exsciscraper.helpers.helpers import Pair
 
 
 class Cleaner:

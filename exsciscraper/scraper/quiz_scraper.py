@@ -7,9 +7,9 @@ import canvasapi.exceptions
 import canvasapi.quiz
 import canvasapi.user
 from dotenv import load_dotenv
-from src.helpers.helpers import Pair
+from exsciscraper.helpers.helpers import Pair
 
-from src.scraper.report_handler import ReportHandler
+from exsciscraper.scraper.report_handler import ReportHandler
 
 
 class QuizScraper:

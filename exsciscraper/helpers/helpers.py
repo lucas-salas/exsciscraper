@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from collections import namedtuple
+from dataclasses import dataclass
 import os
 import pickle
 import re
@@ -9,12 +8,20 @@ from dotenv import load_dotenv
 import varname
 
 
-# @dataclass
-# class Pair:
-#     pre: list = field(default_factory=list)
-#     post: list = field(default_factory=list)
+@dataclass
+class Pair:
+    pre: list
+    post: list
+    term_id: int
 
-Pair = namedtuple('Pair', ['pre', 'post', 'term_id'])
+    def items(self):
+        return self.pre, self.post, self.term_id
+
+    def quizzes(self):
+        return self.pre, self.post
+# Pair = namedtuple('Pair', ['pre', 'post', 'term_id'])
+
+
 def pgpr(iterable):
     [print(item) for item in iterable]
 
@@ -54,15 +61,6 @@ def save(filename: str, input_object: object, term_id: int, for_testing=True):
     with open(f"{base_path}/{dest_path}/{filename}_{term_id}.pkl", "wb") as file:
         pickle.dump(input_object, file)
 
-
-def init_canvas(which_user="nate"):
-    """
-    Function to create an authed canvas instance for development
-    """
-    load_dotenv("/Users/spleut/Projects/Coding/exsciscraper/src/scraper/.env")
-    BASE_URL: str = os.getenv("BASE_URL")
-    API_KEY: str = os.getenv("API_KEY")
-    ACCOUNT_ID: int = int(os.getenv("ACCOUNT_ID"))
 
 
 if __name__ == "__main__":

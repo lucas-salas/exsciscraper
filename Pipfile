@@ -27,8 +27,10 @@ faker = "*"
 varname = "*"
 faker-datasets = "*"
 black = "*"
+exsciscraper = {editable = true, path = "."}
 
 [dev-packages]
+"exsciscraper" = {path = ".", editable = true}
 
 [requires]
 python_version = "3.10"

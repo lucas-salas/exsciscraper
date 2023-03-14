@@ -1,4 +1,4 @@
-from src.scraper import quiz_scraper as qs
+from exsciscraper.scraper import quiz_scraper as qs
 import ipaq_handler as iph
 
 enrollment_term_id = 613

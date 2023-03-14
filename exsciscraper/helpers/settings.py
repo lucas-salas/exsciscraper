@@ -7,3 +7,5 @@ search_str = [
 ]
 
 max_samples = 5
+# PII
+log_file = "/Users/spleut/Projects/Coding/exsciscraper/logs/test_log.log"

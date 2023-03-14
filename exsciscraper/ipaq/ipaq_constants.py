@@ -1,4 +1,4 @@
-from src.scraper.constants import quiz_base_headers
+from exsciscraper.scraper.constants import quiz_base_headers
 
 ipaq_headers_8q = [
     *quiz_base_headers,
