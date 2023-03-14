@@ -1,12 +1,12 @@
 import canvasapi
-import time
 
 
 class ReportHandler:
     def __init__(self, rph_canvas):
         self.rph_canvas = rph_canvas
 
-    def _generate_report(self, quiz: canvasapi.quiz.Quiz):
+    @staticmethod
+    def _generate_report(quiz: canvasapi.quiz.Quiz):
         """Tell canvas to start generating reports for all the provided quizzes, and add the returned reports to the
         quiz object"""
         try:
