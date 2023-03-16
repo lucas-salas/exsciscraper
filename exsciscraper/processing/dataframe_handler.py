@@ -13,7 +13,14 @@ def build_df_list(wrapped_list_pair, max_len=0):
     """
     Build dataframe list from list of report download urls
 
-    read_csv is largest time sink, to max_len is included for faster debugging
+    read_csv is the largest time sink, to max_len is included for faster debugging
+
+    :param wrapped_list_pair: ListPair of pre and post UWRS quiz wrappers
+    :type wrapped_list_pair: exsciscraper.helpers.helpers.ListPair
+    :param max_len: Max length of list to build
+    :type max_len: int
+    :return:
+    :rtype: :class:`exsciscraper.helpers.helpers.ListPair`
     """
     print("Building DataFrame list")
     logging.basicConfig(filename=settings.log_file, level=logging.DEBUG, filemode="w")
@@ -38,6 +45,13 @@ def build_df_list(wrapped_list_pair, max_len=0):
 
 
 def get_df(quiz):
+    """
+    Get report dataframe from quiz report url
+    Import with correct headers and drop unnecessary columns
+    :param quiz: A single quiz object
+    :type quiz: :class:`excsciscraper.scraper.quiz_scraper.QuizWrapper`
+    :rtype: :class:`pandas.DataFrame`
+    """
     # TODO this only needs to run for one quiz per batch
     headers, drop_headers = get_correct_headers(quiz)
     return pd.read_csv(quiz.report_download_url, header=0, names=headers).drop(
@@ -46,9 +60,16 @@ def get_df(quiz):
 
 
 def get_correct_headers(quiz):
+    """
+    Get correct headers for quiz of given type and question count
+
+    :param quiz: A single quiz object
+    :type quiz:
+    :rtype: tuple(list, list)
+    """
     headers = []
     drop_headers = []
-    quiz_type, question_count = identify_quiz_version(quiz)
+    quiz_type, question_count = identify_quiz_type(quiz)
     if quiz_type == "uwrs":
         match question_count:
             case 4:
@@ -81,7 +102,14 @@ def get_correct_headers(quiz):
     return headers, drop_headers
 
 
-def identify_quiz_version(quiz):
+def identify_quiz_type(quiz):
+    """
+    Identify quiz type based on title.
+
+    :param quiz: A single quiz object
+    :type quiz: :class:`excsciscraper.scraper.quiz_scraper.QuizWrapper`
+    :rtype: tuple(str, int)
+    """
     title = quiz.title
     if "Resilience" in title:
         return "uwrs", quiz.question_count
@@ -91,3 +119,7 @@ def identify_quiz_version(quiz):
         return "qol", quiz.question_count
     else:
         raise ValueError("Couldn't identify quiz quiz_type.")
+
+
+def de_identify_df(input_df):
+    return input_df.drop(["name", "uid"], axis=1)

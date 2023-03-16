@@ -134,5 +134,3 @@ def build_semi_final_df(uwrs_no_demographics, reduced_demographics):
     return pd.concat(series_list, axis=0, ignore_index=True)
 
 
-def de_identify_df(input_df):
-    return input_df.drop(["name", "uid"], axis=1)

@@ -6,9 +6,16 @@ class ReportHandler:
         self.rph_canvas = rph_canvas
 
     @staticmethod
-    def _generate_report(quiz: canvasapi.quiz.Quiz):
-        """Tell canvas to start generating reports for all the provided quizzes, and add the returned reports to the
-        quiz object"""
+    def _generate_report(quiz):
+        """
+        Tell canvas to start generating reports for all the provided quizzes, and add the returned reports to the
+        quiz object
+
+        :param quiz: Quiz to generate report for
+        :type quiz: :class:`excsciscraper.scraper.quiz_scraper.QuizWrapper`
+        :return:
+        :rtype:
+        """
         try:
             quiz.report = quiz.create_report(
                 report_type="student_analysis", include=["file", "progress"]
@@ -28,8 +35,16 @@ class ReportHandler:
         quiz.report.progress_id = int(quiz.report.progress_url.split("/")[-1])
         return quiz
 
-    def _check_report_progress(self, quiz: canvasapi.quiz.Quiz, timeout: int = 1):
-        """See if canvas is done generating all the reports"""
+    def _check_report_progress(self, quiz, timeout=1):
+        """
+        See if canvas is done generating all the reports
+
+        :param quiz: Quiz to check progress for
+        :type quiz: :class:`excsciscraper.scraper.quiz_scraper.QuizWrapper`
+        :param timeout: Max time to wait for reports to be generated (in seconds)
+        :type timeout: int
+        :rtype: bool
+        """
         quiz = self._get_progress_id(quiz)
         import time
 
@@ -71,7 +86,15 @@ class ReportHandler:
         return False
 
     def fetch_reports(self, quiz):
-        """Make sure the reports we have are updated and contain a download url"""
+        """
+        Make sure the reports we have are updated and contain a download url
+
+        :param quiz: Quiz to fetch reports for
+        :type quiz: :class:`excsciscraper.scraper.quiz_scraper.QuizWrapper`
+        :return: Quiz with updated report
+        :rtype: :class:`excsciscraper.scraper.quiz_scraper.QuizWrapper`
+
+        """
         # TODO add progress bar
         # TODO create variable for method
         if self._check_report_progress(quiz):

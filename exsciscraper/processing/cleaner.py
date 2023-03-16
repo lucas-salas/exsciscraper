@@ -9,7 +9,13 @@ class Cleaner:
         self.enrollment_term_id = enrollment_term_id
 
     def concat_dfs(self, df_list_pair):
-        """Concatenate a list of dataframes and return them sorted by student id"""
+        """
+        Concatenate a list of dataframes and return them sorted by student id
+
+        :param df_list_pair: Pair of pre/post lists of dataframes
+        :type df_list_pair: exsciscraper.helpers.helpers.ListPair
+        :rtype: exsciscraper.helpers.helpers.DfPair
+        """
         df_dict = {}
         df_list_dict = df_list_pair.quizzes_asdict()
         for pre_post, df_list in df_list_dict.items():
@@ -49,9 +55,7 @@ class Cleaner:
     def _drop_single_submissions(self, pre_df, post_df):
         """
         Drop quiz submissions who didn't take both pre and post assessments.
-        :param pre_df:
-        :param post_df:
-        :return:
+
         """
         # Create lists for pre post ids to iterate over and compare
         pre_uids = [uid for uid in pre_df["uid"]]
@@ -82,8 +86,7 @@ class Cleaner:
     def generate_uids(self, input_df):
         """
         Create a unique identifier for each entry consisting of their name, section, and banner-style termcode
-        :param :class:`pandas.Dataframe` input_df:
-        :return:
+
         """
         try:
             term_code_col = input_df["term_code"].astype("str")

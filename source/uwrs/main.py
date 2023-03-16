@@ -1,12 +1,10 @@
-# import logging
-# from multiprocessing import freeze_support
 import exsciscraper.constants.terms
 from exsciscraper.processing import dataframe_handler
 from exsciscraper.processing.cleaner import Cleaner
+import exsciscraper.processing.dataframe_handler
 from source.uwrs import demog_handler
 
 
-# import src.helpers.settings as settings
 
 
 def main():
@@ -71,7 +69,7 @@ def main():
     semi_final_df = demog_handler.build_semi_final_df(uwrs_no_demographics, reduced_demographics)
 
     # Create final, de-identified dataframe
-    final_df = demog_handler.de_identify_df(semi_final_df)
+    final_df = exsciscraper.processing.dataframe_handler.de_identify_df(semi_final_df)
     print()
 
 
