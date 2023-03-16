@@ -1,6 +1,7 @@
-from exsciscraper.scraper import quiz_scraper as qs
 from exsciscraper.processing import dataframe_handler
 from exsciscraper.processing.cleaner import Cleaner
+from exsciscraper.scraper import quiz_scraper as qs
+
 
 def main():
     enrollment_term_id = 613
@@ -19,6 +20,7 @@ def main():
     df_list_pair = dataframe_handler.build_df_list(wrapped_list_pair, max_len=15)
     cleaner = Cleaner(df_list_pair.term_id)
     dirty_df_pair = cleaner.concat_dfs(df_list_pair)
+    clean_ipaq_pair = cleaner.clean_dfs(dirty_df_pair)
 
     print()
 

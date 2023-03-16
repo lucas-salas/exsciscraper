@@ -1,7 +1,7 @@
 import pandas as pd
 
 import exsciscraper.constants.terms
-from exsciscraper.helpers.helpers import ListPair, DfPair
+from exsciscraper.helpers.helpers import DfPair
 
 
 class Cleaner:
@@ -31,6 +31,10 @@ class Cleaner:
     def clean_dfs(self, dirty_df_pair):
         """
         Sort values by student canvas id and drop rows containing nan-like values, add uid column
+
+        :param dirty_df_pair: Pair of pre/post dataframes
+        :type dirty_df_pair: :class:`exsciscraper.helpers.helpers.DfPair`
+        :rtype: :class:`exsciscraper.helpers.helpers.DfPair`
 
         """
         return_dict = {}
@@ -83,9 +87,14 @@ class Cleaner:
             self.enrollment_term_id,
         )
 
-    def generate_uids(self, input_df):
+    @staticmethod
+    def generate_uids(input_df):
         """
         Create a unique identifier for each entry consisting of their name, section, and banner-style termcode
+
+        :param input_df: Dataframe to generate uids for
+        :type input_df: :class:`pandas.core.frame.DataFrame`
+        :rtype: :class:`pandas.core.series.Series`
 
         """
         try:

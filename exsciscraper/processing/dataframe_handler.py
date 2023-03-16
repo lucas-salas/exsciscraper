@@ -123,3 +123,43 @@ def identify_quiz_type(quiz):
 
 def de_identify_df(input_df):
     return input_df.drop(["name", "uid"], axis=1)
+
+
+def save_to_csv(df, search_terms, term_id, preliminary=False, demographics=False):
+    """
+    Save dataframe to csv
+
+    :param df: A single dataframe
+    :type df: :class:`pandas.DataFrame`
+    :param search_terms: Search terms used to find quiz
+    :type search_terms: str
+    :param term_id: Term ID
+    :type term_id: str
+    """
+    from exsciscraper.helpers import settings
+    from exsciscraper.constants import terms
+    if 'International' in search_terms['pre']:
+        quiz_type = "IPAQ"
+    elif 'Resilience' in search_terms['pre']:
+        quiz_type = "UWRS"
+    elif 'Quality' in search_terms['pre']:
+        quiz_type = "QOL"
+    else:
+        raise ValueError("Couldn't identify quiz quiz_type.")
+    output_dir = settings.output_dir
+    output_dir += f"/{quiz_type.lower()}_out"
+    filename = ""
+    if preliminary:
+        filename += "[PRELIMINARY] "
+    filename += f"{terms.valid_terms[term_id]} {quiz_type}"
+    if not demographics:
+        filename += " (No Demographics)"
+    filename += ".csv"
+
+    df.to_csv(
+        f"{output_dir}/{filename}",
+        index=False,
+        encoding="utf-8",
+    )
+
+
