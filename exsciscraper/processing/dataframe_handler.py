@@ -31,7 +31,7 @@ def build_df_list(wrapped_list_pair, max_len=0):
         wrapped_list_pair.pre = wrapped_list_pair.pre[:max_len]
         wrapped_list_pair.post = wrapped_list_pair.post[:max_len]
     df_list_dict = {"pre": [], "post": []}
-    with Pool(5) as pool:
+    with Pool(10) as pool:
         for result in tqdm.tqdm(
             pool.map(func=get_df, iterable=wrapped_list_pair.pre),
             total=len(wrapped_list_pair.pre),

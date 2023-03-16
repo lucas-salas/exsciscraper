@@ -17,7 +17,7 @@ def main(enrollment_term_id: int, course_desg: str):
         search_terms, course_desg
     )
 
-    df_list_pair = dataframe_handler.build_df_list(wrapped_list_pair, max_len=0)
+    df_list_pair = dataframe_handler.build_df_list(wrapped_list_pair)
     cleaner = Cleaner(df_list_pair.term_id)
     dirty_df_pair = cleaner.concat_dfs(df_list_pair)
     # dirty_df_pair.drop_columns(["acknowledgement"])
@@ -40,8 +40,8 @@ def main(enrollment_term_id: int, course_desg: str):
 
 if __name__ == '__main__':
 
-    # terms = [611, 612, 613, 614, 672]
-    terms = [672]
+    terms = [580]
+    # terms = [612]
     for term in terms:
         print(f"Processing term {term}...")
         main(term, "HLAC")

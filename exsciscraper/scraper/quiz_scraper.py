@@ -124,7 +124,7 @@ class QuizScraper:
         # TODO why doesn't the progress bar reach 100%
         print("Searching for quizzes...")
         search_results = {"pre": [], "post": []}
-        with multiprocessing.Pool(4) as pool:
+        with multiprocessing.Pool(10) as pool:
             for pre_post, quiz_title in quiz_search_terms.items():
                 # for result in tqdm(self._search_quizzes(
                 #     filtered_course_list, quiz_search_terms[pre_post]
@@ -151,7 +151,7 @@ class QuizScraper:
         post_rph = ReportHandler(self.canvas)
         print("Getting quiz reports...")
         updated_quiz_dict = {"pre": [], "post": []}
-        with Pool(4) as pool:
+        with Pool(10) as pool:
             for pre_result in tqdm(
                 pool.imap(
                     func=pre_rph.fetch_reports,
