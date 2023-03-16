@@ -119,3 +119,7 @@ def identify_quiz_type(quiz):
         return "qol", quiz.question_count
     else:
         raise ValueError("Couldn't identify quiz quiz_type.")
+
+
+def de_identify_df(input_df):
+    return input_df.drop(["name", "uid"], axis=1)

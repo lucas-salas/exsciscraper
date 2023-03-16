@@ -14,6 +14,10 @@ from exsciscraper.scraper.report_handler import ReportHandler
 
 
 class QuizScraper:
+    """
+    Class for scraping quiz data from Canvas
+    """
+
     def __init__(self, enrollment_term_id: int):
         dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
         load_dotenv(dotenv_path)

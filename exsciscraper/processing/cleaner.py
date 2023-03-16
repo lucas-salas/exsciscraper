@@ -9,7 +9,9 @@ class Cleaner:
         self.enrollment_term_id = enrollment_term_id
 
     def concat_dfs(self, df_list_pair):
-        """Concatenate a list of dataframes and return them sorted by student id
+        """
+        Concatenate a list of dataframes and return them sorted by student id
+
         :param df_list_pair: Pair of pre/post lists of dataframes
         :type df_list_pair: exsciscraper.helpers.helpers.ListPair
         :rtype: exsciscraper.helpers.helpers.DfPair
