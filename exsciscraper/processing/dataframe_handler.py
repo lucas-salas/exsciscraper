@@ -35,6 +35,9 @@ def build_df_list(wrapped_list_pair, max_len=0):
         for result in tqdm.tqdm(
             pool.map(func=get_df, iterable=wrapped_list_pair.pre),
             total=len(wrapped_list_pair.pre),
+            desc="pre",
+            ncols=100,
+            mininterval=1,
         ):
             df_list_dict["pre"].append(result)
         # df_list_dict["pre"] = pool.map(
@@ -43,6 +46,9 @@ def build_df_list(wrapped_list_pair, max_len=0):
         for result in tqdm.tqdm(
             pool.imap_unordered(func=get_df, iterable=wrapped_list_pair.post),
             total=len(wrapped_list_pair.post),
+            desc="post",
+            ncols=100,
+            mininterval=1,
         ):
             df_list_dict["post"].append(result)
         # df_list_dict["post"] = pool.map(
