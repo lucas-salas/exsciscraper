@@ -14,7 +14,8 @@ from exsciscraper.scraper.report_handler import ReportHandler
 
 
 class QuizScraper:
-    def __init__(self, enrollment_term_id):
+    def __init__(self, enrollment_term_id: int):
+
         dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
         load_dotenv(dotenv_path)
         _BASE_URL: str = os.getenv("BASE_URL")
@@ -26,6 +27,7 @@ class QuizScraper:
         self.enrollment_term_id = enrollment_term_id
 
     def _get_account_courses(self) -> list[canvasapi.course.Course]:
+        # generate numpy docstring  
         """Get a list of all courses for an account"""
         paginated_course_list = self.account.get_courses(
             enrollment_term_id=self.enrollment_term_id,
