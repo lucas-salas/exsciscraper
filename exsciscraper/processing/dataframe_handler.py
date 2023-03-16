@@ -30,19 +30,21 @@ def build_df_list(wrapped_list_pair, max_len=0):
     if max_len:
         wrapped_list_pair.pre = wrapped_list_pair.pre[:max_len]
         wrapped_list_pair.post = wrapped_list_pair.post[:max_len]
-    df_list_dict = {'pre': [], 'post': []}
+    df_list_dict = {"pre": [], "post": []}
     with Pool(5) as pool:
-        for result in tqdm.tqdm(pool.map(
-                func=get_df, iterable=wrapped_list_pair.pre
-        ), total=len(wrapped_list_pair.pre)):
-            df_list_dict['pre'].append(result)
+        for result in tqdm.tqdm(
+            pool.map(func=get_df, iterable=wrapped_list_pair.pre),
+            total=len(wrapped_list_pair.pre),
+        ):
+            df_list_dict["pre"].append(result)
         # df_list_dict["pre"] = pool.map(
         #     func=get_df, iterable=wrapped_list_pair.pre
         # )
-        for result in tqdm.tqdm(pool.imap_unordered(
-                func=get_df, iterable=wrapped_list_pair.post
-        ), total=len(wrapped_list_pair.post)):
-            df_list_dict['post'].append(result)
+        for result in tqdm.tqdm(
+            pool.imap_unordered(func=get_df, iterable=wrapped_list_pair.post),
+            total=len(wrapped_list_pair.post),
+        ):
+            df_list_dict["post"].append(result)
         # df_list_dict["post"] = pool.map(
         #     func=get_df, iterable=[quiz for quiz in wrapped_list_pair.post]
         # )
@@ -172,7 +174,7 @@ def _file_namer(search_terms, term_id, is_final, demographics, has_id):
         tags += "[ID]"
     else:
         tags += "[NO ID]"
-    term_list = terms.valid_terms[term_id].split(' ')
+    term_list = terms.valid_terms[term_id].split(" ")
     year = term_list[0]
     season = term_list[1][:2]
     filename = ""
@@ -180,7 +182,9 @@ def _file_namer(search_terms, term_id, is_final, demographics, has_id):
     return filename, quiz_type
 
 
-def save_to_csv(df, search_terms, term_id, is_final=False, demographics=False, id=False):
+def save_to_csv(
+    df, search_terms, term_id, is_final=False, demographics=False, id=False
+):
     """
     Save dataframe to csv
 
