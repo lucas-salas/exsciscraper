@@ -122,19 +122,29 @@ def identify_quiz_type(quiz):
 
 
 def de_identify_df(input_df):
-    return input_df.drop(["name", "uid"], axis=1)
+    # TODO handle df pairs
+    columns_to_drop = ["name", "id", "sis_id", "uid"]
+    for col in columns_to_drop:
+        if col not in input_df.columns:
+            columns_to_drop.remove(col)
+    return input_df.drop(columns_to_drop, axis=1)
 
 
 def save_to_csv(df, search_terms, term_id, preliminary=False, demographics=False):
     """
     Save dataframe to csv
 
+    :param demographics: Whether dataframe has demographics linked
+    :type demographics: bool
+    :param preliminary: Whether dataframe is preliminary
+    :type preliminary: bool
     :param df: A single dataframe
     :type df: :class:`pandas.DataFrame`
     :param search_terms: Search terms used to find quiz
     :type search_terms: str
     :param term_id: Term ID
     :type term_id: str
+    :rtype: None
     """
     from exsciscraper.helpers import settings
     from exsciscraper.constants import terms
@@ -161,5 +171,3 @@ def save_to_csv(df, search_terms, term_id, preliminary=False, demographics=False
         index=False,
         encoding="utf-8",
     )
-
-

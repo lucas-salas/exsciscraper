@@ -1,3 +1,4 @@
+from exsciscraper.helpers.helpers import DfPair
 from exsciscraper.processing import dataframe_handler
 from exsciscraper.processing.cleaner import Cleaner
 from exsciscraper.scraper import quiz_scraper as qs
@@ -20,7 +21,15 @@ def main():
     df_list_pair = dataframe_handler.build_df_list(wrapped_list_pair, max_len=15)
     cleaner = Cleaner(df_list_pair.term_id)
     dirty_df_pair = cleaner.concat_dfs(df_list_pair)
-    clean_ipaq_pair = cleaner.clean_dfs(dirty_df_pair)
+    clean_ipaq_pair = cleaner.clean_dfs(dirty_df_pair
+                                        .drop(columns=["acknowledgement"]))
+    de_identified_pair = DfPair(
+        pre=dataframe_handler.de_identify_df(clean_ipaq_pair.pre),
+        post=dataframe_handler.de_identify_df(clean_ipaq_pair.post),
+        term_id=clean_ipaq_pair.term_id
+    )
+
+
 
     print()
 
