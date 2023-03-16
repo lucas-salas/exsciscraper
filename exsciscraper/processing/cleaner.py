@@ -60,6 +60,11 @@ class Cleaner:
         """
         Drop quiz submissions who didn't take both pre and post assessments.
 
+        :param pre_df: Pre-assessment dataframe
+        :type pre_df: :class:`pandas.DataFrame`
+        :param post_df: Post-assessment dataframe
+        :type post_df: :class:`pandas.DataFrame`
+        :rtype: :class:`exsciscraper.helpers.helpers.DfPair`
         """
         # Create lists for pre post ids to iterate over and compare
         pre_uids = [uid for uid in pre_df["uid"]]

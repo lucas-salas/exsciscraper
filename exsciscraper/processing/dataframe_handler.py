@@ -141,11 +141,16 @@ def save_to_csv(df, search_terms, term_id, preliminary=False, demographics=False
     :param df: A single dataframe
     :type df: :class:`pandas.DataFrame`
     :param search_terms: Search terms used to find quiz
-    :type search_terms: str
+    :type search_terms: dict
     :param term_id: Term ID
-    :type term_id: str
+    :type term_id: int
     :rtype: None
     """
+    if df.empty:
+        print("Skipping empty dataframe.")
+        return None
+
+
     from exsciscraper.helpers import settings
     from exsciscraper.constants import terms
     if 'International' in search_terms['pre']:
@@ -168,6 +173,7 @@ def save_to_csv(df, search_terms, term_id, preliminary=False, demographics=False
 
     df.to_csv(
         f"{output_dir}/{filename}",
-        index=False,
+        index=True,
         encoding="utf-8",
     )
+    print(f"Dataframe written to {output_dir}/{filename}")

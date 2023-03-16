@@ -4,9 +4,8 @@ from exsciscraper.processing.cleaner import Cleaner
 from exsciscraper.scraper import quiz_scraper as qs
 
 
-def main():
-    enrollment_term_id = 613
-    course_desg = "HLAC"
+def main(enrollment_term_id: int, course_desg: str):
+
 
     scraper = qs.QuizScraper(enrollment_term_id)
     search_terms = {
@@ -21,13 +20,19 @@ def main():
     df_list_pair = dataframe_handler.build_df_list(wrapped_list_pair, max_len=15)
     cleaner = Cleaner(df_list_pair.term_id)
     dirty_df_pair = cleaner.concat_dfs(df_list_pair)
-    clean_ipaq_pair = cleaner.clean_dfs(dirty_df_pair
-                                        .drop(columns=["acknowledgement"]))
+    dirty_df_pair.drop_columns(["acknowledgement"])
+    clean_ipaq_pair = cleaner.clean_dfs(dirty_df_pair)
     de_identified_pair = DfPair(
         pre=dataframe_handler.de_identify_df(clean_ipaq_pair.pre),
         post=dataframe_handler.de_identify_df(clean_ipaq_pair.post),
         term_id=clean_ipaq_pair.term_id
     )
+
+    dataframe_handler.save_to_csv(de_identified_pair.pre,
+                                  search_terms,
+                                  de_identified_pair.term_id,
+                                  preliminary=True
+                                  )
 
 
 
@@ -35,4 +40,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    from exsciscraper.constants import terms
+    for term in terms.valid_terms.keys():
+        print(f"Processing term {term}...")
+        main(term, "HLAC")
