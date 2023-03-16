@@ -14,6 +14,7 @@ def build_df_list(wrapped_list_pair, max_len=0):
     Build dataframe list from list of report download urls
 
     read_csv is the largest time sink, to max_len is included for faster debugging
+
     :param wrapped_list_pair: ListPair of pre and post UWRS quiz wrappers
     :type wrapped_list_pair: exsciscraper.helpers.helpers.ListPair
     :param max_len: Max length of list to build
@@ -61,6 +62,7 @@ def get_df(quiz):
 def get_correct_headers(quiz):
     """
     Get correct headers for quiz of given type and question count
+
     :param quiz: A single quiz object
     :type quiz:
     :rtype: tuple(list, list)
@@ -103,6 +105,7 @@ def get_correct_headers(quiz):
 def identify_quiz_type(quiz):
     """
     Identify quiz type based on title.
+
     :param quiz: A single quiz object
     :type quiz: :class:`excsciscraper.scraper.quiz_scraper.QuizWrapper`
     :rtype: tuple(str, int)
