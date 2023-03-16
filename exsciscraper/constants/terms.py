@@ -1,13 +1,13 @@
 valid_terms = {
-    343: "Spring 2020",
-    578: "Summer 2020",
-    579: "Fall 2020",
-    580: "Spring 2021",
-    611: "Summer 2021",
-    612: "Fall 2021",
-    613: "Spring 2022",
-    614: "Summer 2022",
-    672: "Fall 2022",
+    343: "2020 Spring",
+    578: "2020 Summer",
+    579: "2020 Fall",
+    580: "2021 Spring",
+    611: "2021 Summer",
+    612: "2021 Fall",
+    613: "2022 Spring",
+    614: "2022 Summer",
+    672: "2022 Fall",
 }
 term_codes = {
     343: 202020,

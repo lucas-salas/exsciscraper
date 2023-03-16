@@ -35,7 +35,7 @@ class ReportHandler:
         quiz.report.progress_id = int(quiz.report.progress_url.split("/")[-1])
         return quiz
 
-    def _check_report_progress(self, quiz, timeout=1):
+    def _check_report_progress(self, quiz, timeout=0):
         """
         See if canvas is done generating all the reports
 
@@ -59,29 +59,16 @@ class ReportHandler:
             ):
                 return True
             progress_report = get_progress(quiz.report.progress_id)
-            if timeout and time.time() - time1 > timeout:
-                print(
-                    f"_check_report_stats has timed out after {time.time() - time1} seconds."
-                )
-                break
+            running_time = time.time() - time1
+            if running_time > 5:
+                print(f"Running time for quiz {quiz.id}: {running_time:%.2f}")
+            if timeout:
+                if running_time > timeout:
+                    print(
+                        f"_check_report_stats has timed out after {time.time() - time1} seconds."
+                    )
+                    break
             time.sleep(0.1)
-        # todo_indexes = list(range(len(quiz_list)))
-        # while True:
-        #     # If no more indexes in todo_indexes, return true
-        #     if not todo_indexes:
-        #         return True
-        #     for i in todo_indexes:
-        #         # Use canvas object to
-        #         progress_report = self.rph_canvas.get_progress(
-        #             quiz_list[i].report.progress_id
-        #         )
-        #         if (
-        #             progress_report.completion == 100
-        #             and progress_report.workflow_state == "completed"
-        #         ):
-        #             # Remove current index from todo_indexes since we no longer need to check the progress
-        #             todo_indexes.remove(i)
-
         print("Error while checking reports.")
         return False
 

@@ -8,6 +8,8 @@ import canvasapi.exceptions
 import canvasapi.quiz
 import canvasapi.user
 from dotenv import load_dotenv
+import tqdm
+
 
 from exsciscraper.helpers.helpers import ListPair
 from exsciscraper.scraper.report_handler import ReportHandler

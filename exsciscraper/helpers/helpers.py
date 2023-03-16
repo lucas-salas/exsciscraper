@@ -40,6 +40,7 @@ class DfPair:
         self.pre = self.pre.drop(columns=columns)
         self.post = self.post.drop(columns=columns)
 
+
 def pgpr(iterable):
     [print(item) for item in iterable]
 

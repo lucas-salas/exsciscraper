@@ -28,6 +28,7 @@ varname = "*"
 faker-datasets = "*"
 black = "*"
 exsciscraper = {editable = true, path = "."}
+tqdm = "*"
 
 [dev-packages]
 "exsciscraper" = {path = ".", editable = true}
