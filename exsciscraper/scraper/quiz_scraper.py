@@ -1,3 +1,5 @@
+from itertools import repeat
+import multiprocessing
 from multiprocessing import Pool, freeze_support
 import os
 
@@ -8,6 +10,7 @@ import canvasapi.exceptions
 import canvasapi.quiz
 import canvasapi.user
 from dotenv import load_dotenv
+from tqdm import tqdm
 
 from exsciscraper.helpers.helpers import ListPair
 from exsciscraper.scraper.report_handler import ReportHandler
@@ -68,19 +71,24 @@ class QuizScraper:
         ]
 
     @staticmethod
-    def _search_quizzes(filtered_course_list, quiz_title):
+    def _search_quizzes(course, quiz_title):
         """Return a flattened list of quizzes with a given title
 
         :param quiz_title: str
-        :type filtered_course_list: list[canvasapi.course.Course]
+        :type course: canvasapi.course.Course
         :rtype: list[canvasapi.quiz.Quiz]
         """
+        # results = []
+        # for course in filtered_course_list:
+        #     pag_quiz_list = course.get_quizzes(search_term=quiz_title)
+        #     for quiz in pag_quiz_list:
+        #         quiz.enrollment_term_id = course.enrollment_term_id
+        #         results.append(quiz)
+        pag_quiz_list = course.get_quizzes(search_term=quiz_title)
         results = []
-        for course in filtered_course_list:
-            pag_quiz_list = course.get_quizzes(search_term=quiz_title)
-            for quiz in pag_quiz_list:
-                quiz.enrollment_term_id = course.enrollment_term_id
-                results.append(quiz)
+        for quiz in pag_quiz_list:
+            quiz.enrollment_term_id = course.enrollment_term_id
+            results.append(quiz)
         return results
 
     @staticmethod
@@ -108,46 +116,70 @@ class QuizScraper:
         :type max_len: int
         :rtype: ListPair
         """
-        print("Getting quizzes")
+
         semester_course_list = self._get_account_courses()
         filtered_course_list = self._filter_courses(
             semester_course_list, course_designation
         )
-        search_results = {}
-        for pre_post in quiz_search_terms.keys():
-            search_results[pre_post] = self._search_quizzes(
-                filtered_course_list, quiz_search_terms[pre_post]
-            )
-        # import pickle
-        # # TODO delete
-        # with open(
-        #     "/Users/spleut/Projects/Coding/exsciscraper/resources/pickles/search_results.pkl",
-        #     "rb",
-        # ) as file:
-        #     search_results = pickle.load(file)
+        # TODO why doesn't the progress bar reach 100%
+        print("Searching for quizzes...")
+        search_results = {"pre": [], "post": []}
+        with multiprocessing.Pool(10) as pool:
+            for pre_post, quiz_title in quiz_search_terms.items():
+                # for result in tqdm(self._search_quizzes(
+                #     filtered_course_list, quiz_search_terms[pre_post]
+                # ), total=len(filtered_course_list), desc=pre_post, ncols=100, mininterval=0.5):
+                #     search_results[pre_post].append(result)
+                for result in tqdm(
+                    pool.starmap(
+                        func=self._search_quizzes,
+                        iterable=zip(filtered_course_list, repeat(quiz_title)),
+                    ), total=len(filtered_course_list), desc=pre_post, ncols=100, mininterval=0.5
+                ):
+                    try:
+                        search_results[pre_post].append(*result)
+                    except TypeError:
+                        pass
 
         if max_len:
+            print("Truncating search results")
             search_results["pre"] = search_results["pre"][:max_len]
             search_results["post"] = search_results["post"][:max_len]
 
         # TODO abstract
         pre_rph = ReportHandler(self.canvas)
         post_rph = ReportHandler(self.canvas)
+        print("Getting quiz reports...")
         updated_quiz_dict = {"pre": [], "post": []}
-        with Pool(4) as pool:
-            updated_quiz_dict["pre"] = pool.map(
-                func=pre_rph.fetch_reports,
-                iterable=[quiz for quiz in search_results["pre"]],
-            )
-            updated_quiz_dict["post"] = pool.map(
-                func=post_rph.fetch_reports,
-                iterable=[quiz for quiz in search_results["post"]],
-            )
+        with Pool(10) as pool:
+            for pre_result in tqdm(
+                pool.imap(
+                    func=pre_rph.fetch_reports,
+                    iterable=search_results["pre"],
+                ),
+                total=len(search_results["pre"]),
+                desc="pre",
+                ncols=100,
+                mininterval=0.5,
+            ):
+                updated_quiz_dict["pre"].append(pre_result)
+            for post_result in tqdm(
+                pool.map(
+                    func=post_rph.fetch_reports,
+                    iterable=search_results["post"],
+                ),
+                total=len(search_results["post"]),
+                desc="post",
+                ncols=100,
+                mininterval=0.5,
+            ):
+                updated_quiz_dict["post"].append(post_result)
 
         # updated_quiz_lists = (
         #     pre_rph.fetch_reports(search_results["pre"]),
         #     post_rph.fetch_reports(search_results.["post"'])
         # )
+        print("Finished getting quizzes")
         return ListPair(
             self._build_quiz_wrappers(updated_quiz_dict["pre"]),
             self._build_quiz_wrappers(updated_quiz_dict["post"]),

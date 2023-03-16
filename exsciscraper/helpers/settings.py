@@ -5,6 +5,7 @@ search_str = [
     "Resilience Questionnaire (Pre-Assessment)",
     "Resilience Questionnaire (Post-Assessment)",
 ]
+output_dir = "/Users/spleut/Projects/Coding/exsciscraper/reports"
 
 max_samples = 5
 # PII

@@ -36,6 +36,10 @@ class DfPair:
     def dfs_asdict(self):
         return {"pre": self.pre, "post": self.post}
 
+    def drop_columns(self, columns: list):
+        self.pre = self.pre.drop(columns=columns)
+        self.post = self.post.drop(columns=columns)
+
 
 def pgpr(iterable):
     [print(item) for item in iterable]
